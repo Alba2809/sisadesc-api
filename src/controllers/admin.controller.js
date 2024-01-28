@@ -425,7 +425,10 @@ export const getUser = async (req, res) => {
 
 export const getUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const users = await User.find().populate({
+      path: "role",
+      select: "name _id",
+    });
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
