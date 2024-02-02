@@ -20,6 +20,7 @@ export const loginSchema = z.object({
     })
     .max(25, { message: "La contraseña debe tener un máximo 25 caracteres." }),
 });
+
 /* 
 export const updateSchema = z.object({
   email: z

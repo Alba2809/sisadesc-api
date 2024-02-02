@@ -1,7 +1,42 @@
-export const TOKEN_SECRET = process.env.TOKEN_SECRET || "something secret"
+import { initializeApp } from "firebase/app";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import { v4 } from "uuid";
+import dotenv from "dotenv";
+import path from "path"
 
-export const PORT= process.env.PORT || 4000
+dotenv.config();
 
-export const MONGO_URL= process.env.MONGO_URL || "mongodb://localhost/bd_sisadesc"
+const firebaseConfig = {
+  apiKey: process.env.FIREBASE_APIKEY,
+  authDomain: process.env.FIREBASE_AUTHDOMAIN,
+  projectId: process.env.FIREBASE_PROJECTID,
+  storageBucket: process.env.FIREBASE_STORAGEBUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGINGSENDERID,
+  appId: process.env.FIREBASE_APPID,
+};
 
-export const FRONTEND_URL= process.env.FRONTEND_URL || "http://localhost:5173"
+const app = initializeApp(firebaseConfig);
+
+export async function uploadImagePerfile(image){
+    const storageRef = ref(storage, "avatar/" + v4() + path.extname(image.originalname))
+    const metatype = {
+      contentType: image.mimetype,
+    }
+    await uploadBytes(storageRef, image.buffer, metatype)
+    return await getDownloadURL(storageRef)
+}
+
+export async function deleteImagePerfile(image){
+    const storageRef = ref(storage, image)
+    return await deleteObject(storageRef)
+}
+
+export const storage = getStorage(app);
+
+export const TOKEN_SECRET = process.env.TOKEN_SECRET || "something secret";
+
+export const PORT = process.env.PORT || 4000;
+
+export const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost/bd_sisadesc";
+
+export const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";

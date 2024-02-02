@@ -5,6 +5,7 @@ import User from "../models/user.model.js";
 import Teacher from "../models/teacher.model.js";
 import Student from "../models/student.model.js";
 import Subject from "../models/subject.model.js";
+import { deleteImagePerfile, uploadImagePerfile } from "../config.js"
 
 export const registerUser = async (req, res) => {
   const {
@@ -219,15 +220,17 @@ export const updateUser = async (req, res) => {
     birthdate,
     status,
     role,
-    imageperfile,
   } = req.body;
+  const imageperfile = req.file;
+  let uploadedImage = null
+  
   try {
-    const sameEmail = await User.findOne({ email });
+    const sameEmail = await User.findOne({ email, _id: { $ne: req.params.id } });
     if (sameEmail)
       return res
         .status(400)
         .json(["El correo electrónico ya fue registrado anteriormente."]);
-
+    
     const updates = {
       firstname,
       lastnamepaternal,
@@ -243,10 +246,22 @@ export const updateUser = async (req, res) => {
       email,
       birthdate,
       status,
-      imageperfile,
     };
 
-    const foundRol = await Role.findOne({ name: role });
+    if(req.file){
+      const userImage = await User.findById(req.params.id)
+      if(userImage.imageperfile && userImage.imageperfile !== ""){
+        deleteImagePerfile(userImage.imageperfile)
+      }
+      uploadedImage = await uploadImagePerfile(imageperfile)
+      if(!uploadedImage) return res.status(404).json(["Hubo un problema al actualizar la imagen de perfil. Intente de nuevo."]);
+      updates.imageperfile = uploadedImage
+    }
+
+    const foundRol = await Role.findById( role );
+
+    if(!foundRol) return res.status(404).json(["Rol no encontrado."]);
+
     updates.role = foundRol._id;
 
     const user = await User.findByIdAndUpdate(
@@ -267,6 +282,7 @@ export const updateUser = async (req, res) => {
       email: user.email,
     });
   } catch (error) {
+    if(uploadedImage) deleteImagePerfile(uploadedImage)
     res.status(500).json({ message: error.message });
   }
 };
@@ -493,6 +509,15 @@ export const getSubjects = async (req, res) => {
   try {
     const subjects = await Subject.find();
     res.json(subjects);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getRoles = async (req, res) => {
+  try {
+    const roles = await Role.find();
+    res.json(roles);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

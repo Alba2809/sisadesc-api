@@ -19,7 +19,8 @@ import {
   deleteUser,
   deleteTeacher,
   deleteStudent,
-  deleteSubject
+  deleteSubject,
+  getRoles
 } from "../controllers/admin.controller.js";
 import { authRequired } from "../middlewares/validateToken.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
@@ -31,8 +32,29 @@ import {
   teacherSchema,
   subjectSchema,
 } from "../schemas/admin.schema.js";
+import multer from "multer"
+import { uploadImagePerfile } from "../config.js";
 
 const router = Router();
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+/* const storage = multer.diskStorage({
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
+    );
+  },
+  destination: (req, file, cb) => {
+    cb(null, "src/public/images");
+  },
+});
+
+const upload = multer({
+  dest: "src/public/images"
+}); */
 
 router.post(
   "/admin/registeruser",
@@ -66,6 +88,7 @@ router.put(
   "/admin/updateuser/:id",
   authRequired,
   validateRol("admin"),
+  upload.single("imageperfile"),
   validateSchema(updateUserSchema),
   updateUser
 );
@@ -137,6 +160,12 @@ router.get(
   authRequired,
   validateRol("admin"),
   getSubjects
+);
+router.get(
+  "/admin/getroles",
+  authRequired,
+  validateRol("admin"),
+  getRoles
 );
 router.delete(
   "/admin/deleteuser/:id",

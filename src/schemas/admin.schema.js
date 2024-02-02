@@ -140,10 +140,9 @@ export const updateUserSchema = z.object({
   status: z.string({
     required_error: "El estado es requerido.",
   }),
-  rol: z.string({
+  role: z.string({
     required_error: "El rol es requerido.",
-  }),
-  imageperfile: z.string().nullable(),
+  })
 });
 
 export const teacherSchema = z.object({

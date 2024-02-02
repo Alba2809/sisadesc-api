@@ -32,6 +32,7 @@ export const login = async (req, res) => {
       firstname: userFound.firstname,
       role: userFound.role,
       email: userFound.email,
+      imageperfile: userFound.imageperfile,
       token,
     });
   } catch (error) {
