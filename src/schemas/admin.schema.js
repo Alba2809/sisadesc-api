@@ -46,7 +46,7 @@ export const createUserSchema = z.object({
     .max(30, {
       message: "El correo electrónico debe tener un máximo de 30 caracteres.",
     }),
-  rol: z.string({
+  role: z.string({
     required_error: "El rol es requerido.",
   }),
   password: z

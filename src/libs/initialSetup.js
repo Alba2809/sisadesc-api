@@ -10,7 +10,6 @@ export const createRoles = async () => {
 
     await Promise.all([
       new Role({ name: "admin" }).save(),
-      new Role({ name: "student" }).save(),
       new Role({ name: "teacher" }).save(),
       new Role({ name: "tutor" }).save(),
       new Role({ name: "secretary" }).save(),
@@ -50,25 +49,6 @@ export const createUsers = async () => {
         password: await bcrypt.hash("administrador", 10),
         role: roles.find((role) => role.name === "admin")._id,
       }).save() /* Administrador */,
-      new User({
-        firstname: "Pedro",
-        lastnamepaternal: "García",
-        lastnamematernal: "Perez",
-        curp: "Vacio",
-        rfc: "Vacio",
-        direction: {
-          street: "Vacio",
-          colony: "Vacio",
-          postalcode: 0,
-        },
-        phonenumber: "Vacio",
-        birthdate: "",
-        status: "Activo",
-        imageperfile: "",
-        email: "student1@gmail.com",
-        password: await bcrypt.hash("student1", 10),
-        role: roles.find((role) => role.name === "student")._id,
-      }).save() /* Estudiante */,
       new User({
         firstname: "José",
         lastnamepaternal: "Alba",

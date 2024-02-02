@@ -28,6 +28,10 @@ export const registerUser = async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
+    const foundRol = await Role.findById( role );
+
+    if(!foundRol) return res.status(404).json(["Rol inválido."]);
+
     const newUser = new User({
       firstname,
       lastnamepaternal,
@@ -44,16 +48,8 @@ export const registerUser = async (req, res) => {
       status: "Activo",
       email,
       password: passwordHash,
+      role: foundRol._id
     });
-
-    if (role) {
-      const foundRol = await Role.findOne({ name: role });
-      if (!foundRol) return res.status(404).json(["Rol no encontrado."]);
-      newUser.role = foundRol._id;
-    } else {
-      const rolDefault = await Role.findOne({ name: "student" });
-      newUser.role = rolDefault._id;
-    }
 
     const userSaved = await newUser.save();
 
@@ -525,7 +521,7 @@ export const getRoles = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id);
+    const user = await User.findByIdAndDelete(req.params.id);
     if (!user) return res.status(404).json(["Usuario no encontrado."]);
 
     res.json(user);
