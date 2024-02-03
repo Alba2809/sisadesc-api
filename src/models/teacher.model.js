@@ -33,9 +33,9 @@ const teacherSchema = new mongoose.Schema(
       trim: true,
     },
     direction: {
-      street: { type: String, required: true },
-      colony: { type: String, required: true },
-      postalcode: { type: Number, required: true },
+      street: { type: String, required: true, trim: true, },
+      colony: { type: String, required: true, trim: true, },
+      postalcode: { type: String, required: true },
     },
     phonenumber: {
       type: String,

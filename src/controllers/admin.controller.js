@@ -91,7 +91,7 @@ export const registerTeacher = async (req, res) => {
       rfc,
       direction: {
         street,
-        colony,
+        colony: colony.toString(),
         postalcode,
       },
       phonenumber,
@@ -309,9 +309,9 @@ export const updateTeacher = async (req, res) => {
       phonenumber,
       birthdate,
       direction: {
-        street,
-        colony,
-        postalcode,
+        street: street.toString(),
+        colony: colony.toString(),
+        postalcode: postalcode.toString(),
       },
     };
 
@@ -532,7 +532,7 @@ export const deleteUser = async (req, res) => {
 
 export const deleteTeacher = async (req, res) => {
   try {
-    const teacher = await Teacher.findByIdAndUpdate(req.params.id);
+    const teacher = await Teacher.findByIdAndDelete(req.params.id);
     if (!teacher) return res.status(404).json(["Docente no encontrado."]);
 
     res.json(teacher);
@@ -543,7 +543,7 @@ export const deleteTeacher = async (req, res) => {
 
 export const deleteStudent = async (req, res) => {
   try {
-    const student = await Student.findByIdAndUpdate(req.params.id);
+    const student = await Student.findByIdAndDelete(req.params.id);
     if (!student) return res.status(404).json(["Estudiante no encontrado."]);
 
     res.json(student);
@@ -554,7 +554,7 @@ export const deleteStudent = async (req, res) => {
 
 export const deleteSubject = async (req, res) => {
   try {
-    const subject = await Subject.findByIdAndUpdate(req.params.id);
+    const subject = await Subject.findByIdAndDelete(req.params.id);
     if (!subject) return res.status(404).json(["Materia no encontrada."]);
 
     res.json(subject);
