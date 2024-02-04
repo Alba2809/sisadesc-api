@@ -4,7 +4,6 @@ const subjectSchema = new mongoose.Schema(
   {
     subjectid: {
       type: String,
-      required: true,
       unique: true,
     },
     name: {

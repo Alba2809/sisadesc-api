@@ -60,6 +60,7 @@ const userSchema = new mongoose.Schema(
     role: {
       ref: "Role",
       type: mongoose.Schema.Types.ObjectId,
+      onDelete: "CASCADE",
     },
   },
   {

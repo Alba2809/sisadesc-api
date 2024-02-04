@@ -305,7 +305,7 @@ export const studentSchema = z.object({
 });
 
 export const subjectSchema = z.object({
-  firstname: z
+  name: z
     .string({
       required_error: "El nombre es requerido.",
     })
@@ -314,9 +314,9 @@ export const subjectSchema = z.object({
     }),
   code: z
     .string({
-      required_error: "El segundo apellido es requerido.",
+      required_error: "El código es requerido.",
     })
     .max(10, {
-      message: "El segundo apellido debe tener un máximo de 10 caracteres.",
+      message: "El código debe tener un máximo de 10 caracteres.",
     }),
 });

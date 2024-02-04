@@ -5,7 +5,7 @@ import User from "../models/user.model.js";
 import Teacher from "../models/teacher.model.js";
 import Student from "../models/student.model.js";
 import Subject from "../models/subject.model.js";
-import { deleteImagePerfile, uploadImagePerfile } from "../config.js"
+import { deleteImagePerfile, uploadImagePerfile } from "../config.js";
 
 export const registerUser = async (req, res) => {
   const {
@@ -28,9 +28,9 @@ export const registerUser = async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const foundRol = await Role.findById( role );
+    const foundRol = await Role.findById(role);
 
-    if(!foundRol) return res.status(404).json(["Rol inválido."]);
+    if (!foundRol) return res.status(404).json(["Rol inválido."]);
 
     const newUser = new User({
       firstname,
@@ -48,7 +48,7 @@ export const registerUser = async (req, res) => {
       status: "Activo",
       email,
       password: passwordHash,
-      role: foundRol._id
+      role: foundRol._id,
     });
 
     const userSaved = await newUser.save();
@@ -175,17 +175,14 @@ export const registerStudent = async (req, res) => {
 };
 
 export const registerSubject = async (req, res) => {
-  const {
-    name,
-    code,
-  } = req.body;
+  const { name, code } = req.body;
 
   try {
     const subjectid = await getNextSequence("Subject_ID");
     const paddedCounter = subjectid.toString().padStart(3, "0");
 
     const newSubject = new Subject({
-      studentid: `ASIG${paddedCounter}`,
+      subjectid: `ASIG${paddedCounter}`,
       name,
       code,
     });
@@ -218,15 +215,18 @@ export const updateUser = async (req, res) => {
     role,
   } = req.body;
   const imageperfile = req.file;
-  let uploadedImage = null
-  
+  let uploadedImage = null;
+
   try {
-    const sameEmail = await User.findOne({ email, _id: { $ne: req.params.id } });
+    const sameEmail = await User.findOne({
+      email,
+      _id: { $ne: req.params.id },
+    });
     if (sameEmail)
       return res
         .status(400)
         .json(["El correo electrónico ya fue registrado anteriormente."]);
-    
+
     const updates = {
       firstname,
       lastnamepaternal,
@@ -244,19 +244,24 @@ export const updateUser = async (req, res) => {
       status,
     };
 
-    if(req.file){
-      const userImage = await User.findById(req.params.id)
-      if(userImage.imageperfile && userImage.imageperfile !== ""){
-        deleteImagePerfile(userImage.imageperfile)
+    if (req.file) {
+      const userImage = await User.findById(req.params.id);
+      if (userImage.imageperfile && userImage.imageperfile !== "") {
+        deleteImagePerfile(userImage.imageperfile);
       }
-      uploadedImage = await uploadImagePerfile(imageperfile)
-      if(!uploadedImage) return res.status(404).json(["Hubo un problema al actualizar la imagen de perfil. Intente de nuevo."]);
-      updates.imageperfile = uploadedImage
+      uploadedImage = await uploadImagePerfile(imageperfile);
+      if (!uploadedImage)
+        return res
+          .status(404)
+          .json([
+            "Hubo un problema al actualizar la imagen de perfil. Intente de nuevo.",
+          ]);
+      updates.imageperfile = uploadedImage;
     }
 
-    const foundRol = await Role.findById( role );
+    const foundRol = await Role.findById(role);
 
-    if(!foundRol) return res.status(404).json(["Rol no encontrado."]);
+    if (!foundRol) return res.status(404).json(["Rol no encontrado."]);
 
     updates.role = foundRol._id;
 
@@ -278,7 +283,7 @@ export const updateUser = async (req, res) => {
       email: user.email,
     });
   } catch (error) {
-    if(uploadedImage) deleteImagePerfile(uploadedImage)
+    if (uploadedImage) deleteImagePerfile(uploadedImage);
     res.status(500).json({ message: error.message });
   }
 };
@@ -404,9 +409,8 @@ export const updateStudent = async (req, res) => {
 
 export const updateSubject = async (req, res) => {
   try {
-
     const subject = await Subject.findByIdAndUpdate(
-      req.subject.id,
+      req.params.id,
       {
         $set: req.body,
       },
@@ -470,9 +474,13 @@ export const getTeachers = async (req, res) => {
 
 export const getStudent = async (req, res) => {
   try {
-    const studentFound = await Student.findById(req.params.id);
+    const studentFound = await Student.findById(req.params.id).populate({
+      path: "subjects",
+      select: "name",
+    });
 
-    if (!studentFound) return res.status(404).json(["Estudiante no encontrado."]);
+    if (!studentFound)
+      return res.status(404).json(["Estudiante no encontrado."]);
 
     res.json(studentFound);
   } catch (error) {
@@ -482,7 +490,10 @@ export const getStudent = async (req, res) => {
 
 export const getStudents = async (req, res) => {
   try {
-    const students = await Student.find();
+    const students = await Student.find().populate({
+      path: "subjects",
+      select: "name",
+    });
     res.json(students);
   } catch (error) {
     res.status(500).json({ message: error.message });
