@@ -11,6 +11,7 @@ export const createRoles = async () => {
     await Promise.all([
       new Role({ name: "admin" }).save(),
       new Role({ name: "teacher" }).save(),
+      new Role({ name: "parent" }).save(),
       new Role({ name: "tutor" }).save(),
       new Role({ name: "secretary" }).save(),
       new Role({ name: "principal" }).save(),
