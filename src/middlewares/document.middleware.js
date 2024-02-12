@@ -1,8 +1,8 @@
-import User from "../models/user.model.js";
+import { pool } from "../db.js";
 
 export const validateDocument = () => async (req, res, next) => {
   try {
-    const userFound = await User.findById(req.user.id).populate({ path: "role" });
+    const userFound = await pool.query("SELECT * FROM users JOIN roles ON users.role = roles.id WHERE users.id = ?", [req.user.id])
     const documentName = req.url.split("/").pop();
     const hasMatchingDocumentWater = await Water.exists({
       user: req.user.id,

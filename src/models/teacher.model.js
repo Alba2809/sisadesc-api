@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+/* import mongoose from "mongoose";
 
 const teacherSchema = new mongoose.Schema(
   {
@@ -60,3 +60,4 @@ const teacherSchema = new mongoose.Schema(
 );
 
 export default mongoose.model("Teacher", teacherSchema);
+ */

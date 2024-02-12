@@ -1,22 +1,22 @@
-import Role from "../models/role.model.js";
-import User from "../models/user.model.js";
+import { pool } from "../db.js";
 import bcrypt from "bcryptjs";
 
 export const createRoles = async () => {
   try {
-    const count = await Role.estimatedDocumentCount();
-
+    const [ result ] = await pool.query("SELECT COUNT(*) AS total FROM roles");
+    const count = result[0]["total"]
+    
     if (count > 0) return;
 
     await Promise.all([
-      new Role({ name: "admin" }).save(),
-      new Role({ name: "teacher" }).save(),
-      new Role({ name: "parent" }).save(),
-      new Role({ name: "tutor" }).save(),
-      new Role({ name: "secretary" }).save(),
-      new Role({ name: "principal" }).save(),
-      new Role({ name: "viceprincipal" }).save(),
-      new Role({ name: "academiccoor" }).save(),
+      pool.query("INSERT INTO roles (name) VALUES (?)", ["admin"]),
+      pool.query("INSERT INTO roles (name) VALUES (?)", ["teacher"]),
+      pool.query("INSERT INTO roles (name) VALUES (?)", ["parent"]),
+      pool.query("INSERT INTO roles (name) VALUES (?)", ["tutor"]),
+      pool.query("INSERT INTO roles (name) VALUES (?)", ["secretary"]),
+      pool.query("INSERT INTO roles (name) VALUES (?)", ["principal"]),
+      pool.query("INSERT INTO roles (name) VALUES (?)", ["viceprincipal"]),
+      pool.query("INSERT INTO roles (name) VALUES (?)", ["academiccoor"]),
     ]);
   } catch (error) {
     console.log(error);
@@ -25,145 +25,97 @@ export const createRoles = async () => {
 
 export const createUsers = async () => {
   try {
-    const count = await User.estimatedDocumentCount();
-    const roles = await Role.find();
+    const [ result ] = await pool.query("SELECT COUNT(*) AS total FROM users");
+    const [roles] = await pool.query("SELECT * FROM roles");
+    const count = result[0]["total"]
 
-    if (count > 0) return;
+    if (+count > 0) return;
 
     await Promise.all([
-      new User({
-        firstname: "Juan",
-        lastnamepaternal: "Perez",
-        lastnamematernal: "García",
-        curp: "Vacio",
-        rfc: "Vacio",
-        direction: {
-          street: "Vacio",
-          colony: "Vacio",
-          postalcode: 0,
-        },
-        phonenumber: "Vacio",
-        birthdate: "",
-        status: "Activo",
-        imageperfile: "",
-        email: "administrador@gmail.com",
-        password: await bcrypt.hash("administrador", 10),
-        role: roles.find((role) => role.name === "admin")._id,
-      }).save() /* Administrador */,
-      new User({
-        firstname: "José",
-        lastnamepaternal: "Alba",
-        lastnamematernal: "García",
-        curp: "Vacio",
-        rfc: "Vacio",
-        direction: {
-          street: "Vacio",
-          colony: "Vacio",
-          postalcode: 0,
-        },
-        phonenumber: "Vacio",
-        birthdate: "",
-        status: "Activo",
-        imageperfile: "",
-        email: "teacher1@gmail.com",
-        password: await bcrypt.hash("teacher1", 10),
-        role: roles.find((role) => role.name === "teacher")._id,
-      }).save() /* Maestro */,
-      new User({
-        firstname: "Pablo",
-        lastnamepaternal: "Perez",
-        lastnamematernal: "Peralta",
-        curp: "Vacio",
-        rfc: "Vacio",
-        direction: {
-          street: "Vacio",
-          colony: "Vacio",
-          postalcode: 0,
-        },
-        phonenumber: "Vacio",
-        birthdate: "",
-        status: "Activo",
-        imageperfile: "",
-        email: "tutor1@gmail.com",
-        password: await bcrypt.hash("tutor1", 10),
-        role: roles.find((role) => role.name === "tutor")._id,
-      }).save() /* Padre/Tutor */,
-      new User({
-        firstname: "Sebastián",
-        lastnamepaternal: "Hernández",
-        lastnamematernal: "García",
-        curp: "Vacio",
-        rfc: "Vacio",
-        direction: {
-          street: "Vacio",
-          colony: "Vacio",
-          postalcode: 0,
-        },
-        phonenumber: "Vacio",
-        birthdate: "",
-        status: "Activo",
-        imageperfile: "",
-        email: "secretary1@gmail.com",
-        password: await bcrypt.hash("secretary1", 10),
-        role: roles.find((role) => role.name === "secretary")._id,
-      }).save() /* Secreatria */,
-      new User({
-        firstname: "Axel",
-        lastnamepaternal: "Herrera",
-        lastnamematernal: "Alba",
-        curp: "Vacio",
-        rfc: "Vacio",
-        direction: {
-          street: "Vacio",
-          colony: "Vacio",
-          postalcode: 0,
-        },
-        phonenumber: "Vacio",
-        birthdate: "",
-        status: "Activo",
-        imageperfile: "",
-        email: "principal1@gmail.com",
-        password: await bcrypt.hash("principal1", 10),
-        role: roles.find((role) => role.name === "principal")._id,
-      }).save() /* Director */,
-      new User({
-        firstname: "Jhonatan",
-        lastnamepaternal: "Pale",
-        lastnamematernal: "Colorado",
-        curp: "Vacio",
-        rfc: "Vacio",
-        direction: {
-          street: "Vacio",
-          colony: "Vacio",
-          postalcode: 0,
-        },
-        phonenumber: "Vacio",
-        birthdate: "",
-        status: "Activo",
-        imageperfile: "",
-        email: "viceprincipal1@gmail.com",
-        password: await bcrypt.hash("viceprincipal1", 10),
-        role: roles.find((role) => role.name === "viceprincipal")._id,
-      }).save() /* Vicedirector */,
-      new User({
-        firstname: "Evelin",
-        lastnamepaternal: "Montero",
-        lastnamematernal: "Gómez",
-        curp: "Vacio",
-        rfc: "Vacio",
-        direction: {
-          street: "Vacio",
-          colony: "Vacio",
-          postalcode: 0,
-        },
-        phonenumber: "Vacio",
-        birthdate: "",
-        status: "Activo",
-        imageperfile: "",
-        email: "coordinador1@gmail.com",
-        password: await bcrypt.hash("coordinador1", 10),
-        role: roles.find((role) => role.name === "academiccoor")._id,
-      }).save() /* Coordinador académico */,
+      pool.query(
+        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [
+          "Juan",
+          "Perez",
+          "García",
+          "Activo",
+          "administrador@gmail.com",
+          await bcrypt.hash("administrador", 10),
+          roles.find((role) => role.name === "admin").id,
+        ]
+      ), /* Administrador */
+      pool.query(
+        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [
+          "Pablo",
+          "Sanchez",
+          "Perez",
+          "Activo",
+          "teacher1@gmail.com",
+          await bcrypt.hash("teacher1", 10),
+          roles.find((role) => role.name === "teacher").id,
+        ]
+      ), /* Maestro */
+      pool.query(
+        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [
+          "Juan",
+          "Gutierrez",
+          "Peralta",
+          "Activo",
+          "tutor1@gmail.com",
+          await bcrypt.hash("tutor1", 10),
+          roles.find((role) => role.name === "tutor").id,
+        ]
+      ), /* Tutor */
+      pool.query(
+        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [
+          "Marta",
+          "Sanchez",
+          "Sanchez",
+          "Activo",
+          "secretary1@gmail.com",
+          await bcrypt.hash("secretary1", 10),
+          roles.find((role) => role.name === "secretary").id,
+        ]
+      ), /* Secretaria */
+      pool.query(
+        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [
+          "Axel",
+          "Herrrera",
+          "Alba",
+          "Activo",
+          "principal1@gmail.com",
+          await bcrypt.hash("principal1", 10),
+          roles.find((role) => role.name === "principal").id,
+        ]
+      ), /* Director */
+      pool.query(
+        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [
+          "Jhonatan",
+          "Pale",
+          "Colorado",
+          "Activo",
+          "vicepincipal1@gmail.com",
+          await bcrypt.hash("vicepincipal1", 10),
+          roles.find((role) => role.name === "viceprincipal").id,
+        ]
+      ), /* Vicedirector */
+      pool.query(
+        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [
+          "Luis",
+          "Migule",
+          "Conde",
+          "Activo",
+          "coordinador1@gmail.com",
+          await bcrypt.hash("coordinador1", 10),
+          roles.find((role) => role.name === "academiccoor").id,
+        ]
+      ), /* Coordinador académico */
     ]);
   } catch (error) {
     console.log(error);

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+/* import mongoose from "mongoose";
 
 const studentSchema = new mongoose.Schema(
   {
@@ -72,3 +72,4 @@ const studentSchema = new mongoose.Schema(
 );
 
 export default mongoose.model("Student", studentSchema);
+ */

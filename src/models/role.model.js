@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+/* import mongoose from "mongoose";
 
 const roleSchema = new mongoose.Schema(
   {
@@ -13,3 +13,4 @@ const roleSchema = new mongoose.Schema(
 );
 
 export default mongoose.model("Role", roleSchema);
+ */

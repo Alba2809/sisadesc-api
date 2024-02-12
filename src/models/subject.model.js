@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+/* import mongoose from "mongoose";
 
 const subjectSchema = new mongoose.Schema(
   {
@@ -22,3 +22,4 @@ const subjectSchema = new mongoose.Schema(
 );
 
 export default mongoose.model("Subject", subjectSchema);
+ */

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+/* import mongoose from "mongoose";
 
 export const Counter = mongoose.model(
   "Counter",
@@ -23,3 +23,4 @@ const getNextSequence = async (sequenceName) => {
 };
 
 export default getNextSequence;
+ */
