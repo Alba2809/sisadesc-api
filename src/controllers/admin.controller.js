@@ -36,7 +36,7 @@ export const registerUser = async (req, res) => {
     if (!foundRol[0]) return res.status(404).json(["Rol no encontrado."]);
 
     const [rows] = await pool.query(
-      "INSERT INTO user (firstname, lastnamepaternal, lastnamematernal, curp, rfc, role, email, password, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, curp, rfc, role, email, password, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         firstname,
         lastnamepaternal,
@@ -281,7 +281,7 @@ export const updateUser = async (req, res) => {
     }
 
     const [result] = await pool.query(
-      "UPDATE users SET firstname = ?, lastnamepaternal = ?, lastnamematernal = ?, curp = ?, rfc = ?, address_id = ?, street = ?, phonenumber = ?, birthdate = ?, status = ?, imageperfile = ?, email = ?, role = ?",
+      "UPDATE users SET firstname = ?, lastnamepaternal = ?, lastnamematernal = ?, curp = ?, rfc = ?, address_id = ?, street = ?, phonenumber = ?, birthdate = ?, status = ?, imageperfile = ?, email = ?, role = ? WHERE id = ?",
       [
         firstname,
         lastnamepaternal,
@@ -296,6 +296,7 @@ export const updateUser = async (req, res) => {
         uploadedImage,
         email,
         foundRol[0].id,
+        req.params.id
       ]
     );
 
@@ -498,13 +499,43 @@ export const updateSubject = async (req, res) => {
 export const getUser = async (req, res) => {
   try {
     const [userFound] = await pool.query(
-      "SELECT users.*, role.name AS role_name, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id JOIN addresses ON users.address_id = addresses.id WHERE users.id = ?",
+      "SELECT users.*, DATE_FORMAT(users.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(users.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, roles.name AS role_name, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id LEFT JOIN addresses ON users.address_id = addresses.id WHERE users.id = ?",
       [req.params.id]
     );
 
     if (!userFound[0]) return res.status(404).json(["Usuario no encontrado."]);
 
-    res.json(userFound[0]);
+    const usersWithDetails = userFound.map((user) => {
+      return {
+        id: user.id,
+        firstname: user.firstname,
+        lastnamepaternal: user.lastnamepaternal,
+        lastnamematernal: user.lastnamematernal,
+        curp: user.curp,
+        rfc: user.rfc,
+        phonenumber: user.phonenumber,
+        birthdate: user.birthdate,
+        status: user.status,
+        email: user.email,
+        createdAt: user.formattedCreatedAt,
+        updatedAt: user.formattedUpdatedAt,
+        role: {
+          id: user.role,
+          name: user.role_name,
+        },
+        address: {
+          postalcode: user.address_cp,
+          street: user.street,
+          settlement: user.address_settlement,
+          type_settlement: user.address_type,
+          town: user.address_town,
+          state: user.address_state,
+          city: user.address_city,
+        },
+      };
+    });
+
+    res.json(usersWithDetails[0]);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -513,10 +544,40 @@ export const getUser = async (req, res) => {
 export const getUsers = async (req, res) => {
   try {
     const [users] = await pool.query(
-      "SELECT users.*, role.name AS role_name, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id JOIN addresses ON users.address_id = addresses.id"
+      "SELECT users.*, DATE_FORMAT(users.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(users.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, roles.name AS role_name, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id LEFT JOIN addresses ON users.address_id = addresses.id"
     );
 
-    res.json(users);
+    const usersWithDetails = users.map((user) => {
+      return {
+        id: user.id,
+        firstname: user.firstname,
+        lastnamepaternal: user.lastnamepaternal,
+        lastnamematernal: user.lastnamematernal,
+        curp: user.curp,
+        rfc: user.rfc,
+        phonenumber: user.phonenumber,
+        birthdate: user.birthdate,
+        status: user.status,
+        email: user.email,
+        createdAt: user.formattedCreatedAt,
+        updatedAt: user.formattedUpdatedAt,
+        role: {
+          id: user.role,
+          name: user.role_name,
+        },
+        address: {
+          postalcode: user.address_cp,
+          street: user.street,
+          settlement: user.address_settlement,
+          type_settlement: user.address_type,
+          town: user.address_town,
+          state: user.address_state,
+          city: user.address_city,
+        },
+      };
+    });
+
+    res.json(usersWithDetails);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -656,6 +717,16 @@ export const getRoles = async (req, res) => {
     const [roles] = await pool.query("SELECT * FROM roles")
 
     res.json(roles);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getAddresses = async (req, res) => {
+  try {
+    const [addresses] = await pool.query("SELECT * FROM addresses")
+
+    res.json(addresses);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -20,7 +20,8 @@ import {
   deleteTeacher,
   deleteStudent,
   deleteSubject,
-  getRoles
+  getRoles,
+  getAddresses
 } from "../controllers/admin.controller.js";
 import { authRequired } from "../middlewares/validateToken.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
@@ -166,6 +167,12 @@ router.get(
   authRequired,
   validateRol("admin"),
   getRoles
+);
+router.get(
+  "/admin/getaddresses",
+  authRequired,
+  validateRol("admin"),
+  getAddresses
 );
 router.delete(
   "/admin/deleteuser/:id",

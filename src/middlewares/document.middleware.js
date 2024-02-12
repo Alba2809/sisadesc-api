@@ -12,7 +12,7 @@ export const validateDocument = () => async (req, res, next) => {
       user: req.user.id,
       documentAccepted: documentName,
     });
-    if (userFound.role.name === "citizen") {
+    if (userFound.role_name === "citizen") {
       if (!hasMatchingDocumentWater && !hasMatchingDocumentOfficial)
         return res.status(401).json("Not found");
     }

@@ -26,15 +26,14 @@ export const createUserSchema = z.object({
     .string({
       required_error: "El CURP es requerido.",
     })
-    .length(13, {
-      message: "El CURP debe tener 13 caracteres.",
+    .length(18, {
+      message: "El CURP debe tener 18 caracteres.",
     }),
   rfc: z
-    .string({
-      required_error: "El RFC es requerido.",
-    })
-    .length(13, {
-      message: "El RFC debe tener 13 caracteres.",
+    .string()
+    .nullable()
+    .refine((value) => value === null || value.length === 13 || value === "", {
+      message: "El RFC debe tener exactamente 13 caracteres.",
     }),
   email: z
     .string({
@@ -46,7 +45,7 @@ export const createUserSchema = z.object({
     .max(30, {
       message: "El correo electrónico debe tener un máximo de 30 caracteres.",
     }),
-  role: z.string({
+  role: z.number({
     required_error: "El rol es requerido.",
   }),
   password: z
@@ -85,15 +84,14 @@ export const updateUserSchema = z.object({
     .string({
       required_error: "El CURP es requerido.",
     })
-    .length(13, {
-      message: "El CURP debe tener 13 caracteres.",
+    .length(18, {
+      message: "El CURP debe tener 18 caracteres.",
     }),
-  rfc: z
-    .string({
-      required_error: "El RFC es requerido.",
-    })
-    .length(13, {
-      message: "El RFC debe tener 13 caracteres.",
+    rfc: z
+    .string()
+    .nullable()
+    .refine((value) => value === null || value.length === 13 || value === "", {
+      message: "El RFC debe tener exactamente 13 caracteres.",
     }),
   email: z
     .string({
@@ -112,20 +110,9 @@ export const updateUserSchema = z.object({
     .max(30, {
       message: "La calle debe tener un máximo de 30 caracteres.",
     }),
-  colony: z
-    .string({
-      required_error: "La colonia es requerida.",
-    })
-    .max(30, {
-      message: "La colonia debe tener un máximo de 30 caracteres.",
-    }),
-  postalcode: z
-    .string({
-      required_error: "El código postal es requerida.",
-    })
-    .length(5, {
-      message: "El código postal debe tener 5 caracteres.",
-    }),
+  addressid: z.string({
+    required_error: "Se requiere una dirección.",
+  }),
   phonenumber: z
     .string({
       required_error: "El teléfono es requerido.",
@@ -140,9 +127,9 @@ export const updateUserSchema = z.object({
   status: z.string({
     required_error: "El estado es requerido.",
   }),
-  role: z.string({
+  role: z.number({
     required_error: "El rol es requerido.",
-  })
+  }),
 });
 
 export const teacherSchema = z.object({
@@ -171,8 +158,8 @@ export const teacherSchema = z.object({
     .string({
       required_error: "El CURP es requerido.",
     })
-    .length(13, {
-      message: "El CURP debe tener 13 caracteres.",
+    .length(18, {
+      message: "El CURP debe tener 18 caracteres.",
     }),
   rfc: z
     .string({
@@ -244,8 +231,8 @@ export const studentSchema = z.object({
     .string({
       required_error: "El CURP es requerido.",
     })
-    .length(13, {
-      message: "El CURP debe tener 13 caracteres.",
+    .length(18, {
+      message: "El CURP debe tener 18 caracteres.",
     }),
   gender: z.string({
     required_error: "El género es requerido.",
