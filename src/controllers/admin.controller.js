@@ -82,7 +82,7 @@ export const registerTeacher = async (req, res) => {
     if (!address[0]) return res.status(404).json(["Dirección no encontrada."]);
 
     const [rows] = await pool.query(
-      "INSER INTO teachers (firstname, lastnamepaternal, lastnamematernal, curp, rfc, address_id, street, phonenumber, birthdate, gender) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO teachers (firstname, lastnamepaternal, lastnamematernal, curp, rfc, address_id, street, phonenumber, birthdate, gender) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         firstname,
         lastnamepaternal,
@@ -296,7 +296,7 @@ export const updateUser = async (req, res) => {
         uploadedImage,
         email,
         foundRol[0].id,
-        req.params.id
+        req.params.id,
       ]
     );
 
@@ -586,14 +586,39 @@ export const getUsers = async (req, res) => {
 export const getTeacher = async (req, res) => {
   try {
     const [teacherFound] = await pool.query(
-      "SELECT teachers.*, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from teachers JOIN addresses ON teachers.address_id = addresses.id WHERE teachers.id = ?",
+      "SELECT teachers.*, DATE_FORMAT(teachers.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(teachers.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from teachers JOIN addresses ON teachers.address_id = addresses.id WHERE teachers.id = ?",
       [req.params.id]
     );
 
     if (!teacherFound[0])
       return res.status(404).json(["Docente no encontrado."]);
 
-    res.json(teacherFound[0]);
+    const teachersWithDetails = teacherFound.map((value) => {
+      return {
+        id: value.id,
+        firstname: value.firstname,
+        lastnamepaternal: value.lastnamepaternal,
+        lastnamematernal: value.lastnamematernal,
+        curp: value.curp,
+        rfc: value.rfc,
+        phonenumber: value.phonenumber,
+        birthdate: value.birthdate,
+        gender: value.gender,
+        createdAt: value.formattedCreatedAt,
+        updatedAt: value.formattedUpdatedAt,
+        address: {
+          postalcode: value.address_cp,
+          street: value.street,
+          settlement: value.address_settlement,
+          type_settlement: value.address_type,
+          town: value.address_town,
+          state: value.address_state,
+          city: value.address_city,
+        },
+      };
+    });
+
+    res.json(teachersWithDetails[0]);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -602,10 +627,35 @@ export const getTeacher = async (req, res) => {
 export const getTeachers = async (req, res) => {
   try {
     const [teachers] = await pool.query(
-      "SELECT teachers.*, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from teachers JOIN addresses ON teachers.address_id = addresses.id"
+      "SELECT teachers.*, DATE_FORMAT(teachers.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(teachers.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from teachers JOIN addresses ON teachers.address_id = addresses.id"
     );
 
-    res.json(teachers);
+    const teachersWithDetails = teachers.map((value) => {
+      return {
+        id: value.id,
+        firstname: value.firstname,
+        lastnamepaternal: value.lastnamepaternal,
+        lastnamematernal: value.lastnamematernal,
+        curp: value.curp,
+        rfc: value.rfc,
+        phonenumber: value.phonenumber,
+        birthdate: value.birthdate,
+        gender: value.gender,
+        createdAt: value.formattedCreatedAt,
+        updatedAt: value.formattedUpdatedAt,
+        address: {
+          postalcode: value.address_cp,
+          street: value.street,
+          settlement: value.address_settlement,
+          type_settlement: value.address_type,
+          town: value.address_town,
+          state: value.address_state,
+          city: value.address_city,
+        },
+      };
+    });
+
+    res.json(teachersWithDetails);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -714,7 +764,7 @@ export const getSubjects = async (req, res) => {
 
 export const getRoles = async (req, res) => {
   try {
-    const [roles] = await pool.query("SELECT * FROM roles")
+    const [roles] = await pool.query("SELECT * FROM roles");
 
     res.json(roles);
   } catch (error) {
@@ -724,7 +774,7 @@ export const getRoles = async (req, res) => {
 
 export const getAddresses = async (req, res) => {
   try {
-    const [addresses] = await pool.query("SELECT * FROM addresses")
+    const [addresses] = await pool.query("SELECT * FROM addresses");
 
     res.json(addresses);
   } catch (error) {
@@ -734,9 +784,12 @@ export const getAddresses = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
   try {
-    const [result] = await pool.query("DELETE FROM users WHERE id = ?", [ req.params.id ]);
+    const [result] = await pool.query("DELETE FROM users WHERE id = ?", [
+      req.params.id,
+    ]);
 
-    if (result.affectedRows <= 0) return res.status(404).json(["Usuario no encontrado."]);
+    if (result.affectedRows <= 0)
+      return res.status(404).json(["Usuario no encontrado."]);
 
     res.json(result.affectedRows);
   } catch (error) {
@@ -746,9 +799,12 @@ export const deleteUser = async (req, res) => {
 
 export const deleteTeacher = async (req, res) => {
   try {
-    const [result] = await pool.query("DELETE FROM teachers WHERE id = ?", [ req.params.id ]);
-    
-    if (result.affectedRows <= 0) return res.status(404).json(["Docente no encontrado."]);
+    const [result] = await pool.query("DELETE FROM teachers WHERE id = ?", [
+      req.params.id,
+    ]);
+
+    if (result.affectedRows <= 0)
+      return res.status(404).json(["Docente no encontrado."]);
 
     res.json(result.affectedRows);
   } catch (error) {
@@ -758,9 +814,12 @@ export const deleteTeacher = async (req, res) => {
 
 export const deleteStudent = async (req, res) => {
   try {
-    const [result] = await pool.query("DELETE FROM students WHERE id = ?", [ req.params.id ]);
-    
-    if (result.affectedRows <= 0) return res.status(404).json(["Docente no encontrado."]);
+    const [result] = await pool.query("DELETE FROM students WHERE id = ?", [
+      req.params.id,
+    ]);
+
+    if (result.affectedRows <= 0)
+      return res.status(404).json(["Docente no encontrado."]);
 
     res.json(result.affectedRows);
   } catch (error) {
@@ -770,9 +829,12 @@ export const deleteStudent = async (req, res) => {
 
 export const deleteSubject = async (req, res) => {
   try {
-    const [result] = await pool.query("DELETE FROM subjects WHERE id = ?", [ req.params.id ]);
-    
-    if (result.affectedRows <= 0) return res.status(404).json(["Docente no encontrado."]);
+    const [result] = await pool.query("DELETE FROM subjects WHERE id = ?", [
+      req.params.id,
+    ]);
+
+    if (result.affectedRows <= 0)
+      return res.status(404).json(["Docente no encontrado."]);
 
     res.json(result.affectedRows);
   } catch (error) {
