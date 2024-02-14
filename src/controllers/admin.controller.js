@@ -1,160 +1,175 @@
 import { deleteImagePerfile, uploadImagePerfile } from "../config.js";
 import { pool } from "../db.js";
-import bcrypt from "bcryptjs";
+import { AddressModel } from "../models/address.model.js";
+import { ParentModel } from "../models/parent.model.js";
+import { RoleModel } from "../models/role.model.js";
+import { StudentModel } from "../models/student.model.js";
+import { TeacherModel } from "../models/teacher.model.js";
+import { UserModel } from "../models/user.model.js";
 
 export const registerUser = async (req, res) => {
-  const {
-    firstname,
-    lastnamepaternal,
-    lastnamematernal,
-    curp,
-    rfc,
-    role,
-    email,
-    password,
-  } = req.body;
+  const { firstname, role, email } = req.body;
 
   try {
-    /* Varificar que ya existe un usuario con el mismo email (diferente al que hizo la solicitud) */
-    const [userFound] = await pool.query(
-      "SELECT * FROM users WHERE email = ?",
-      [email]
-    );
+    const roleFound = await RoleModel.getById({ id: role });
 
-    if (userFound[0])
+    if (!roleFound) return res.status(404).json(["Rol no encontrado."]);
+
+    const emailExist = await UserModel.emailExist(email);
+
+    if (emailExist)
       return res
         .status(400)
-        .json(["El correo electrónico ya fue registrado anteriormente."]);
+        .json(["El email ya ha sido registrado anteriormente."]);
 
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    /* Verificar si el rol existe */
-    const [foundRol] = await pool.query("SELECT * FROM roles WHERE id = ?", [
-      role,
-    ]);
-
-    if (!foundRol[0]) return res.status(404).json(["Rol no encontrado."]);
-
-    const [rows] = await pool.query(
-      "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, curp, rfc, role, email, password, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [
-        firstname,
-        lastnamepaternal,
-        lastnamematernal,
-        curp,
-        rfc,
-        foundRol[0].id,
-        email,
-        passwordHash,
-        "Activo",
-      ]
-    );
+    const result = await UserModel.create(req.body);
 
     res.json({
-      firstname: firstname,
-      email: email,
-      role: foundRol[0].name,
+      firstname,
+      email,
+      role,
+      id: result.insertId,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al registrar el usuario."]);
   }
 };
 
 export const registerTeacher = async (req, res) => {
-  const {
-    firstname,
-    lastnamepaternal,
-    lastnamematernal,
-    curp,
-    rfc,
-    addressid,
-    street,
-    phonenumber,
-    birthdate,
-    gender,
-  } = req.body;
+  const { firstname, lastnamepaternal, lastnamematernal, addressid } = req.body;
 
   try {
-    const [address] = await pool.query("SELECT * FROM addresses WHERE id = ?", [
-      addressid,
-    ]);
+    const addressFound = await AddressModel.getById(addressid);
 
-    if (!address[0]) return res.status(404).json(["Dirección no encontrada."]);
+    if (!addressFound)
+      return res.status(404).json(["Dirección no encontrada."]);
 
-    const [rows] = await pool.query(
-      "INSERT INTO teachers (firstname, lastnamepaternal, lastnamematernal, curp, rfc, address_id, street, phonenumber, birthdate, gender) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [
-        firstname,
-        lastnamepaternal,
-        lastnamematernal,
-        curp,
-        rfc,
-        addressid,
-        street,
-        phonenumber,
-        birthdate,
-        gender,
-      ]
-    );
+    const row = await TeacherModel.create(req.body);
 
     res.json({
-      firstname: firstname,
-      lastnamepaternal: lastnamepaternal,
-      lastnamematernal: lastnamematernal,
-      teacherid: "MTR" + rows.insertId,
+      firstname,
+      lastnamepaternal,
+      lastnamematernal,
+      teacherid: "MTR" + row.insertId,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al registrar el docente."]);
   }
 };
 
 export const registerStudent = async (req, res) => {
   const {
-    firstname,
-    lastnamepaternal,
-    lastnamematernal,
-    curp,
-    gender,
-    birthdate,
-    addressid,
-    street,
-    email,
-    group,
-    phonenumber,
+    student_addressid,
+    student_firstname,
+    student_lastnamepaternal,
+    father_firstname,
+    mother_firstname,
+    tutor_firstname,
+    father_curp,
+    mother_curp,
+    tutor_curp,
   } = req.body;
 
   try {
-    const [address] = await pool.query("SELECT * FROM addresses WHERE id = ?", [
-      addressid,
-    ]);
+    /* Validar direcciones */
+    const addressFoundStudent = await AddressModel.getById(student_addressid);
 
-    if (!address[0]) return res.status(404).json(["Dirección no encontrada."]);
+    if (!addressFoundStudent)
+      return res.status(404).json(["Dirección del estudiante no encontrada."]);
 
-    const [rows] = await pool.query(
-      "INSER INTO students (firstname, lastnamepaternal, lastnamematernal, curp, gender, birthdate, address_id, street, email, group, phonenumber) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [
-        firstname,
-        lastnamepaternal,
-        lastnamematernal,
-        curp,
-        gender,
-        birthdate,
-        addressid,
-        street,
-        email,
-        group,
-        phonenumber,
-      ]
-    );
+    /* Validar curps de padres (cuando los padres ya existentes y no se requiere registrar nuevos) */
+    let totalParents = 0
+    if (!father_firstname && father_curp) {
+      const parentFoundFather = await ParentModel.curpExist(father_curp);
+
+      if (!parentFoundFather)
+        return res.status(404).json(["Padre no encontrado."]);
+    }
+
+    if (!mother_firstname && mother_curp) {
+      const parentFoundMother = await ParentModel.curpExist(mother_curp);
+      if (!parentFoundMother)
+        return res.status(404).json(["Madre no encontrada."]);
+    }
+
+    if (!tutor_firstname && tutor_curp) {
+      const parentFoundTutor = await ParentModel.curpExist(tutor_curp);
+      if (!parentFoundTutor)
+        return res.status(404).json(["Tutor no encontrado."]);
+    }
+    
+    const rows = await StudentModel.create(req.body);
 
     res.json({
-      firstname: firstname,
-      lastnamepaternal: lastnamepaternal,
-      lastnamematernal: lastnamematernal,
       studentid: "STD" + rows.insertId,
+      student_firstname,
+      student_lastnamepaternal,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.log(error);
+    res.status(500).json(["Hubo un error al registrar el estudiante."]);
+  }
+};
+
+export const registerParent = async (req, res) => {
+  const { father_addressid, mother_addressid, tutor_addressid } = req.body;
+  try {
+    /* Validar direcciones */
+    if (father_addressid) {
+      const addressFoundFather = await AddressModel.getById(father_addressid);
+      if (!addressFoundFather)
+        return res.status(404).json(["Dirección del padre no encontrada."]);
+    }
+
+    if (mother_addressid) {
+      const addressFoundMother = await AddressModel.getById(mother_addressid);
+      if (!addressFoundMother)
+        return res.status(404).json(["Dirección de la madre no encontrada."]);
+    }
+
+    if (tutor_addressid) {
+      const addressFoundTutor = await AddressModel.getById(tutor_addressid);
+      if (!addressFoundTutor)
+        return res.status(404).json(["Dirección del tutor no encontrada."]);
+    }
+
+    /* Validar curps */
+    const curpExistFather = await ParentModel.curpExist(req.body.father_curp);
+    if (curpExistFather)
+      return res.status(400).json(["Ya existe un padre con el mismo CURP"]);
+
+    const curpExistMother = await ParentModel.curpExist(req.body.mother_curp);
+    if (curpExistMother)
+      return res.status(400).json(["Ya existe una madre con el mismo CURP"]);
+
+    const curpExistTutor = await ParentModel.curpExist(req.body.tutor_curp);
+    if (curpExistTutor)
+      return res.status(400).json(["Ya existe un tutor con el mismo CURP"]);
+
+    const emailExistFather = await ParentModel.emailExist(
+      req.body.father_email
+    );
+
+    /* Validar emails */
+    if (emailExistFather)
+      return res.status(400).json(["Ya existe un padre con el mismo email"]);
+
+    const emailExistMother = await ParentModel.emailExist(
+      req.body.mother_email
+    );
+    if (emailExistMother)
+      return res.status(400).json(["Ya existe una madre con el mismo email"]);
+
+    const emailExistTutor = await ParentModel.emailExist(req.body.tutor_email);
+    if (emailExistTutor)
+      return res.status(400).json(["Ya existe un tutor con el mismo email"]);
+
+    const rowsParents = await ParentModel.create(req.body);
+
+    return res.json(rowsParents);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(["Hubo un error al registrar el padre."]);
   }
 };
 
@@ -222,48 +237,29 @@ export const registerSubject = async (req, res) => {
 };
 
 export const updateUser = async (req, res) => {
-  const {
-    firstname,
-    lastnamepaternal,
-    lastnamematernal,
-    curp,
-    rfc,
-    addressid,
-    street,
-    phonenumber,
-    birthdate,
-    status,
-    email,
-    role,
-  } = req.body;
+  const { firstname, addressid, email, role } = req.body;
   const newImage = req.file;
   let uploadedImage = null;
 
   try {
     /*  */
-    const [userFound] = await pool.query(
-      "SELECT * FROM users WHERE email = ? AND id != ?",
-      [email, req.params.id]
-    );
+    const emailExist = await UserModel.emailExistUpdate(email, req.params.id);
 
-    if (userFound[0])
+    if (emailExist)
       return res
         .status(400)
         .json(["El correo electrónico ya fue registrado anteriormente."]);
 
     /*  */
-    const [foundRol] = await pool.query("SELECT * FROM roles WHERE id = ?", [
-      role,
-    ]);
+    const roleFound = await RoleModel.getById({ id: role });
 
-    if (!foundRol[0]) return res.status(404).json(["Rol inválido."]);
+    if (!roleFound) return res.status(404).json(["Rol inválido."]);
 
     /*  */
-    const [address] = await pool.query("SELECT * FROM addresses WHERE id = ?", [
-      addressid,
-    ]);
+    const addressFound = await AddressModel.getById({ id: addressid });
 
-    if (!address[0]) return res.status(404).json(["Dirección no encontrada."]);
+    if (!addressFound)
+      return res.status(404).json(["Dirección no encontrada."]);
 
     /*  */
     if (req.file) {
@@ -280,25 +276,7 @@ export const updateUser = async (req, res) => {
           ]);
     }
 
-    const [result] = await pool.query(
-      "UPDATE users SET firstname = ?, lastnamepaternal = ?, lastnamematernal = ?, curp = ?, rfc = ?, address_id = ?, street = ?, phonenumber = ?, birthdate = ?, status = ?, imageperfile = ?, email = ?, role = ? WHERE id = ?",
-      [
-        firstname,
-        lastnamepaternal,
-        lastnamematernal,
-        curp,
-        rfc,
-        addressid,
-        street,
-        phonenumber,
-        birthdate,
-        status,
-        uploadedImage,
-        email,
-        foundRol[0].id,
-        req.params.id,
-      ]
-    );
+    const result = await UserModel.update(req.params.id, req.body);
 
     if (result.affectedRows === 0)
       return res
@@ -306,53 +284,26 @@ export const updateUser = async (req, res) => {
         .json(["Hubo un problema al actualizar el usuario."]);
 
     res.json({
-      firstname: firstname,
-      role: foundRol[0].name,
-      email: email,
+      firstname,
+      role,
+      email,
     });
   } catch (error) {
     if (uploadedImage) deleteImagePerfile(uploadedImage);
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al actualizar el usuario."]);
   }
 };
 
 export const updateTeacher = async (req, res) => {
-  const {
-    firstname,
-    lastnamepaternal,
-    lastnamematernal,
-    curp,
-    rfc,
-    addressid,
-    street,
-    phonenumber,
-    birthdate,
-    gender,
-  } = req.body;
+  const { firstname, curp, addressid } = req.body;
 
   try {
-    const [address] = await pool.query("SELECT * FROM addresses WHERE id = ?", [
-      addressid,
-    ]);
+    const addressFound = await AddressModel.getById(addressid);
 
-    if (!address[0]) return res.status(404).json(["Dirección no encontrada."]);
+    if (!addressFound)
+      return res.status(404).json(["Dirección no encontrada."]);
 
-    /*  */
-    const [result] = await pool.query(
-      "UPDATE teachers SET firstname = ?, lastnamepaternal = ?, lastnamematernal = ?, curp = ?, rfc = ?, address_id = ?, street = ?, phonenumber = ?, birthdate = ?, gender = ?",
-      [
-        firstname,
-        lastnamepaternal,
-        lastnamematernal,
-        curp,
-        rfc,
-        address[0].id,
-        street,
-        phonenumber,
-        birthdate,
-        gender,
-      ]
-    );
+    const result = await TeacherModel.update(req.params.id, req.body);
 
     if (result.affectedRows === 0)
       return res
@@ -364,61 +315,83 @@ export const updateTeacher = async (req, res) => {
       curp: curp,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al actualizar el docente."]);
   }
 };
 
 export const updateStudent = async (req, res) => {
-  const {
-    firstname,
-    lastnamepaternal,
-    lastnamematernal,
-    curp,
-    gender,
-    birthdate,
-    addressid,
-    street,
-    email,
-    group,
-    phonenumber,
-  } = req.body;
+  const { firstname, curp, addressid, curp_father, curp_mother, curp_tutor } =
+    req.body;
 
   try {
-    const [address] = await pool.query("SELECT * FROM addresses WHERE id = ?", [
-      addressid,
-    ]);
+    const addressFound = await AddressModel.getById(addressid);
 
-    if (!address[0]) return res.status(404).json(["Dirección no encontrada."]);
+    if (!addressFound)
+      return res.status(404).json(["Dirección no encontrada."]);
+
+    if (curp_father) {
+      const curpFoundFather = await ParentModel.curpExist(curp_father);
+      if (!curpFoundFather)
+        return res.status(404).json(["CURP del padre no encontrada."]);
+    }
+
+    if (curp_mother) {
+      const curpFoundMother = await ParentModel.curpExist(curp_mother);
+      if (!curpFoundMother)
+        return res.status(404).json(["CURP de la madre no encontrada."]);
+    }
+
+    if (curp_tutor) {
+      const curpFoundTutor = await ParentModel.curpExist(curp_tutor);
+      if (!curpFoundTutor)
+        return res.status(404).json(["CURP del tutor no encontrada."]);
+    }
 
     /*  */
-    const [result] = await pool.query(
-      "UPDATE students SET firstname = ?, lastnamepaternal = ?, lastnamematernal = ?, curp = ?, gender = ?, birthdate = ?, address_id = ?, street = ?, email = ?, group = ?, phonenumber = ?",
-      [
-        firstname,
-        lastnamepaternal,
-        lastnamematernal,
-        curp,
-        gender,
-        birthdate,
-        addressid,
-        street,
-        email,
-        group,
-        phonenumber,
-      ]
-    );
+    const result = await StudentModel.update(req.params.id, req.body);
 
     if (result.affectedRows === 0)
-      return res
-        .status(404)
-        .json(["Hubo un problema al actualizar el estudiante."]);
+      return res.status(404).json(["No se pudo actualizar el estudiante."]);
 
     res.json({
-      firstname: firstname,
-      curp: curp,
+      firstname,
+      curp,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.log(error);
+    res.status(500).json(["Hubo un error al actualizar el estudiante."]);
+  }
+};
+
+export const updateParent = async (req, res) => {
+  const { firstname, lastname, curp, addressid } = req.body;
+  try {
+    const addressFound = await AddressModel.getById(addressid);
+    if (!addressFound)
+      return res.status(404).json(["Dirección no encontrada."]);
+
+    const curpExist = await ParentModel.curpExistUpdate(curp, req.params.id);
+    if (curpExist)
+      return res.status(404).json(["El CURP ya fue registrado anteriormente."]);
+
+    const emailExist = await UserModel.emailExistUpdate(curp, req.params.id);
+    if (emailExist)
+      return res
+        .status(404)
+        .json(["El correo electrónico ya fue registrado anteriormente."]);
+
+    const result = await ParentModel.update(req.params.id, req.body);
+    if (result.affectedRows === 0)
+      return res.status(404).json(["No se pudo actualizar el padre."]);
+
+    res.json({
+      firstname,
+      lastname,
+      curp,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(["Hubo un error al actualizar el padre."]);
   }
 };
 
@@ -498,194 +471,88 @@ export const updateSubject = async (req, res) => {
 
 export const getUser = async (req, res) => {
   try {
-    const [userFound] = await pool.query(
-      "SELECT users.*, DATE_FORMAT(users.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(users.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, roles.name AS role_name, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id LEFT JOIN addresses ON users.address_id = addresses.id WHERE users.id = ?",
-      [req.params.id]
-    );
+    const user = await UserModel.getById(req.params.id);
 
-    if (!userFound[0]) return res.status(404).json(["Usuario no encontrado."]);
+    if (!user) return res.status(404).json(["Usuario no encontrado."]);
 
-    const usersWithDetails = userFound.map((user) => {
-      return {
-        id: user.id,
-        firstname: user.firstname,
-        lastnamepaternal: user.lastnamepaternal,
-        lastnamematernal: user.lastnamematernal,
-        curp: user.curp,
-        rfc: user.rfc,
-        phonenumber: user.phonenumber,
-        birthdate: user.birthdate,
-        status: user.status,
-        email: user.email,
-        createdAt: user.formattedCreatedAt,
-        updatedAt: user.formattedUpdatedAt,
-        role: {
-          id: user.role,
-          name: user.role_name,
-        },
-        address: {
-          postalcode: user.address_cp,
-          street: user.street,
-          settlement: user.address_settlement,
-          type_settlement: user.address_type,
-          town: user.address_town,
-          state: user.address_state,
-          city: user.address_city,
-        },
-      };
-    });
-
-    res.json(usersWithDetails[0]);
+    res.json(user);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al obtener el usuario."]);
   }
 };
 
 export const getUsers = async (req, res) => {
   try {
-    const [users] = await pool.query(
-      "SELECT users.*, DATE_FORMAT(users.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(users.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, roles.name AS role_name, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id LEFT JOIN addresses ON users.address_id = addresses.id"
-    );
+    const users = await UserModel.getAll();
 
-    const usersWithDetails = users.map((user) => {
-      return {
-        id: user.id,
-        firstname: user.firstname,
-        lastnamepaternal: user.lastnamepaternal,
-        lastnamematernal: user.lastnamematernal,
-        curp: user.curp,
-        rfc: user.rfc,
-        phonenumber: user.phonenumber,
-        birthdate: user.birthdate,
-        status: user.status,
-        email: user.email,
-        createdAt: user.formattedCreatedAt,
-        updatedAt: user.formattedUpdatedAt,
-        role: {
-          id: user.role,
-          name: user.role_name,
-        },
-        address: {
-          postalcode: user.address_cp,
-          street: user.street,
-          settlement: user.address_settlement,
-          type_settlement: user.address_type,
-          town: user.address_town,
-          state: user.address_state,
-          city: user.address_city,
-        },
-      };
-    });
-
-    res.json(usersWithDetails);
+    res.json(users);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al obtener los usuarios."]);
   }
 };
 
 export const getTeacher = async (req, res) => {
   try {
-    const [teacherFound] = await pool.query(
-      "SELECT teachers.*, DATE_FORMAT(teachers.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(teachers.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from teachers JOIN addresses ON teachers.address_id = addresses.id WHERE teachers.id = ?",
-      [req.params.id]
-    );
+    const teacherFound = await TeacherModel.getById(req.params.id);
 
-    if (!teacherFound[0])
-      return res.status(404).json(["Docente no encontrado."]);
+    if (!teacherFound) return res.status(404).json(["Docente no encontrado."]);
 
-    const teachersWithDetails = teacherFound.map((value) => {
-      return {
-        id: value.id,
-        firstname: value.firstname,
-        lastnamepaternal: value.lastnamepaternal,
-        lastnamematernal: value.lastnamematernal,
-        curp: value.curp,
-        rfc: value.rfc,
-        phonenumber: value.phonenumber,
-        birthdate: value.birthdate,
-        gender: value.gender,
-        createdAt: value.formattedCreatedAt,
-        updatedAt: value.formattedUpdatedAt,
-        address: {
-          postalcode: value.address_cp,
-          street: value.street,
-          settlement: value.address_settlement,
-          type_settlement: value.address_type,
-          town: value.address_town,
-          state: value.address_state,
-          city: value.address_city,
-        },
-      };
-    });
-
-    res.json(teachersWithDetails[0]);
+    res.json(teacherFound);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al obtener el docente."]);
   }
 };
 
 export const getTeachers = async (req, res) => {
   try {
-    const [teachers] = await pool.query(
-      "SELECT teachers.*, DATE_FORMAT(teachers.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(teachers.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from teachers JOIN addresses ON teachers.address_id = addresses.id"
-    );
+    const teachers = await TeacherModel.getAll();
 
-    const teachersWithDetails = teachers.map((value) => {
-      return {
-        id: value.id,
-        firstname: value.firstname,
-        lastnamepaternal: value.lastnamepaternal,
-        lastnamematernal: value.lastnamematernal,
-        curp: value.curp,
-        rfc: value.rfc,
-        phonenumber: value.phonenumber,
-        birthdate: value.birthdate,
-        gender: value.gender,
-        createdAt: value.formattedCreatedAt,
-        updatedAt: value.formattedUpdatedAt,
-        address: {
-          postalcode: value.address_cp,
-          street: value.street,
-          settlement: value.address_settlement,
-          type_settlement: value.address_type,
-          town: value.address_town,
-          state: value.address_state,
-          city: value.address_city,
-        },
-      };
-    });
-
-    res.json(teachersWithDetails);
+    res.json(teachers);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res;
   }
 };
 
 export const getStudent = async (req, res) => {
   try {
-    const [studentFound] = await pool.query(
-      "SELECT students.*, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from students JOIN addresses ON students.address_id = addresses.id WHERE students.id = ?",
-      [req.params.id]
-    );
+    const studentFound = await StudentModel.getById(req.params.id);
 
-    if (!studentFound[0])
+    if (!studentFound)
       return res.status(404).json(["Estudiante no encontrado."]);
 
-    res.json(studentFound[0]);
+    res.json(studentFound);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al obtener el estudiante."]);
   }
 };
 
 export const getStudents = async (req, res) => {
   try {
-    const [students] = await pool.query(
-      "SELECT students.*, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from students JOIN addresses ON students.address_id = addresses.id"
-    );
+    const students = await StudentModel.getAll();
 
     res.json(students);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al obtener los estudiantes."]);
+  }
+};
+
+export const getParent = async (req, res) => {
+  try {
+    const parentFound = await ParentModel.getById(req.params.id);
+    if (!parentFound) return res.status(404).json(["Padre no encontrado."]);
+
+    res.json(parentFound);
+  } catch (error) {
+    res.status(500).json(["Hubo un error al obtener el padre."]);
+  }
+};
+
+export const getParents = async (req, res) => {
+  try {
+    const parents = await ParentModel.getAll();
+    res.json(parents);
+  } catch (error) {
+    res.status(500).json(["Hubo un error al obtener los padres."]);
   }
 };
 
@@ -784,9 +651,7 @@ export const getAddresses = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
   try {
-    const [result] = await pool.query("DELETE FROM users WHERE id = ?", [
-      req.params.id,
-    ]);
+    const result = await UserModel.delete(req.params.id);
 
     if (result.affectedRows <= 0)
       return res.status(404).json(["Usuario no encontrado."]);
@@ -799,31 +664,40 @@ export const deleteUser = async (req, res) => {
 
 export const deleteTeacher = async (req, res) => {
   try {
-    const [result] = await pool.query("DELETE FROM teachers WHERE id = ?", [
-      req.params.id,
-    ]);
+    const result = await TeacherModel.delete(req.params.id);
 
     if (result.affectedRows <= 0)
       return res.status(404).json(["Docente no encontrado."]);
 
     res.json(result.affectedRows);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al eliminar el docente."]);
   }
 };
 
 export const deleteStudent = async (req, res) => {
   try {
-    const [result] = await pool.query("DELETE FROM students WHERE id = ?", [
-      req.params.id,
-    ]);
+    const result = await StudentModel.delete(req.params.id);
 
     if (result.affectedRows <= 0)
-      return res.status(404).json(["Docente no encontrado."]);
+      return res.status(404).json(["Estudiante no encontrado."]);
 
     res.json(result.affectedRows);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al eliminar el estudiante."]);
+  }
+};
+
+export const deleteParent = async (req, res) => {
+  try {
+    const result = await ParentModel.delete(req.params.id);
+    if (result.affectedRows <= 0)
+      return res.status(404).json(["Padre no encontrado."]);
+
+    res.json(result.affectedRows);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(["Hubo un error al eliminar el padre."]);
   }
 };
 

@@ -21,7 +21,12 @@ import {
   deleteStudent,
   deleteSubject,
   getRoles,
-  getAddresses
+  getAddresses,
+  registerParent,
+  updateParent,
+  getParent,
+  getParents,
+  deleteParent
 } from "../controllers/admin.controller.js";
 import { authRequired } from "../middlewares/validateToken.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
@@ -32,6 +37,9 @@ import {
   studentSchema,
   teacherSchema,
   subjectSchema,
+  fatherSchema,
+  motherSchema,
+  tutorSchema,
 } from "../schemas/admin.schema.js";
 import multer from "multer"
 import { uploadImagePerfile } from "../config.js";
@@ -79,6 +87,27 @@ router.post(
   registerStudent
 );
 router.post(
+  "/admin/registerfather",
+  authRequired,
+  validateRol("admin"),
+  validateSchema(fatherSchema),
+  registerParent
+);
+router.post(
+  "/admin/registermother",
+  authRequired,
+  validateRol("admin"),
+  validateSchema(motherSchema),
+  registerParent
+);
+router.post(
+  "/admin/registertutor",
+  authRequired,
+  validateRol("admin"),
+  validateSchema(tutorSchema),
+  registerParent
+);
+router.post(
   "/admin/registersubject",
   authRequired,
   validateRol("admin"),
@@ -106,6 +135,27 @@ router.put(
   validateRol("admin"),
   validateSchema(studentSchema),
   updateStudent
+);
+router.put(
+  "/admin/updatefather/:id",
+  authRequired,
+  validateRol("admin"),
+  validateSchema(fatherSchema),
+  updateParent
+);
+router.put(
+  "/admin/updatemother/:id",
+  authRequired,
+  validateRol("admin"),
+  validateSchema(motherSchema),
+  updateParent
+);
+router.put(
+  "/admin/updatetutor/:id",
+  authRequired,
+  validateRol("admin"),
+  validateSchema(tutorSchema),
+  updateParent
 );
 router.put(
   "/admin/updatesubject/:id",
@@ -151,6 +201,18 @@ router.get(
   getStudents
 );
 router.get(
+  "/admin/getparent/:id",
+  authRequired,
+  validateRol("admin"),
+  getParent
+);
+router.get(
+  "/admin/getparents",
+  authRequired,
+  validateRol("admin"),
+  getParents
+);
+router.get(
   "/admin/getsubject/:id",
   authRequired,
   validateRol("admin"),
@@ -191,6 +253,12 @@ router.delete(
   authRequired,
   validateRol("admin"),
   deleteStudent
+);
+router.delete(
+  "/admin/deleteparent/:id",
+  authRequired,
+  validateRol("admin"),
+  deleteParent
 );
 router.delete(
   "/admin/deletesubject/:id",
