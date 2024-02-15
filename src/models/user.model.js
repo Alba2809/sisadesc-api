@@ -18,6 +18,7 @@ export class UserModel {
         rfc: user.rfc,
         phonenumber: user.phonenumber,
         birthdate: user.birthdate,
+        imageperfile: user.imageperfile,
         status: user.status,
         email: user.email,
         createdAt: user.formattedCreatedAt,
@@ -59,6 +60,7 @@ export class UserModel {
         rfc: user.rfc,
         phonenumber: user.phonenumber,
         birthdate: user.birthdate,
+        imageperfile: user.imageperfile,
         status: user.status,
         email: user.email,
         createdAt: user.formattedCreatedAt,
@@ -68,6 +70,7 @@ export class UserModel {
           name: user.role_name,
         },
         address: {
+          id: user.address_id,
           postalcode: user.address_cp,
           street: user.street,
           settlement: user.address_settlement,
@@ -114,7 +117,7 @@ export class UserModel {
     return rows;
   }
 
-  static async update(id, input) {
+  static async update(id, input, uploadedImage) {
     const {
       firstname,
       lastnamepaternal,
@@ -138,14 +141,14 @@ export class UserModel {
         lastnamematernal,
         curp,
         rfc,
-        addressid,
+        +addressid,
         street,
         phonenumber,
         birthdate,
         status,
         uploadedImage,
         email,
-        role,
+        +role,
         id,
       ]
     );
@@ -174,6 +177,27 @@ export class UserModel {
       [email, id]
     );
 
-    return userFound[0];
+    const usersWithDetails = userFound.map((user) => {
+      return {
+        id: user.id,
+        firstname: user.firstname,
+        lastnamepaternal: user.lastnamepaternal,
+        lastnamematernal: user.lastnamematernal,
+        curp: user.curp,
+        rfc: user.rfc,
+        phonenumber: user.phonenumber,
+        birthdate: user.birthdate,
+        status: user.status,
+        imageperfile: user.imageperfile,
+        email: user.email,
+        role: user.role,
+        addressid: user.address_id,
+        street: user.street,
+        createdAt: user.formattedCreatedAt,
+        updatedAt: user.formattedUpdatedAt,
+      };
+    });
+
+    return usersWithDetails[0];
   }
 }

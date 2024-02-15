@@ -56,6 +56,7 @@ export class TeacherModel {
         createdAt: value.formattedCreatedAt,
         updatedAt: value.formattedUpdatedAt,
         address: {
+          id: value.address_id,
           postalcode: value.address_cp,
           street: value.street,
           settlement: value.address_settlement,
@@ -125,7 +126,7 @@ export class TeacherModel {
         lastnamematernal,
         curp,
         rfc,
-        addressid,
+        +addressid,
         street,
         phonenumber,
         birthdate,

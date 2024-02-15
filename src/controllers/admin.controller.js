@@ -39,7 +39,7 @@ export const registerTeacher = async (req, res) => {
   const { firstname, lastnamepaternal, lastnamematernal, addressid } = req.body;
 
   try {
-    const addressFound = await AddressModel.getById(addressid);
+    const addressFound = await AddressModel.getById(+addressid);
 
     if (!addressFound)
       return res.status(404).json(["Dirección no encontrada."]);
@@ -77,8 +77,16 @@ export const registerStudent = async (req, res) => {
     if (!addressFoundStudent)
       return res.status(404).json(["Dirección del estudiante no encontrada."]);
 
+    /* Validar que se hayan ingresado al menos un padre */
+    if (
+      (father_curp === "" && mother_curp === "") ||
+      (!father_curp && !mother_curp)
+    ) {
+      return res.status(404).json(["Debe registrar al menos un padre."]);
+    }
+
     /* Validar curps de padres (cuando los padres ya existentes y no se requiere registrar nuevos) */
-    let totalParents = 0
+    let totalParents = 0;
     if (!father_firstname && father_curp) {
       const parentFoundFather = await ParentModel.curpExist(father_curp);
 
@@ -97,7 +105,7 @@ export const registerStudent = async (req, res) => {
       if (!parentFoundTutor)
         return res.status(404).json(["Tutor no encontrado."]);
     }
-    
+
     const rows = await StudentModel.create(req.body);
 
     res.json({
@@ -112,7 +120,14 @@ export const registerStudent = async (req, res) => {
 };
 
 export const registerParent = async (req, res) => {
-  const { father_addressid, mother_addressid, tutor_addressid } = req.body;
+  const {
+    father_addressid,
+    mother_addressid,
+    tutor_addressid,
+    father_firstname,
+    mother_firstname,
+    tutor_firstname,
+  } = req.body;
   try {
     /* Validar direcciones */
     if (father_addressid) {
@@ -134,35 +149,37 @@ export const registerParent = async (req, res) => {
     }
 
     /* Validar curps */
-    const curpExistFather = await ParentModel.curpExist(req.body.father_curp);
-    if (curpExistFather)
-      return res.status(400).json(["Ya existe un padre con el mismo CURP"]);
+    if (father_firstname) {
+      const curpExistFather = await ParentModel.curpExist(req.body.father_curp);
+      if (curpExistFather)
+        return res.status(400).json(["Ya existe un padre con el mismo CURP"]);
 
-    const curpExistMother = await ParentModel.curpExist(req.body.mother_curp);
-    if (curpExistMother)
-      return res.status(400).json(["Ya existe una madre con el mismo CURP"]);
+      const emailExistFather = await ParentModel.emailExist(
+        req.body.father_email
+      );
+      if (emailExistFather)
+        return res.status(400).json(["Ya existe un padre con el mismo email"]);
+    } else if (mother_firstname) {
+      const curpExistMother = await ParentModel.curpExist(req.body.mother_curp);
+      if (curpExistMother)
+        return res.status(400).json(["Ya existe una madre con el mismo CURP"]);
 
-    const curpExistTutor = await ParentModel.curpExist(req.body.tutor_curp);
-    if (curpExistTutor)
-      return res.status(400).json(["Ya existe un tutor con el mismo CURP"]);
+      const emailExistMother = await ParentModel.emailExist(
+        req.body.mother_email
+      );
+      if (emailExistMother)
+        return res.status(400).json(["Ya existe una madre con el mismo email"]);
+    } else if (tutor_firstname) {
+      const curpExistTutor = await ParentModel.curpExist(req.body.tutor_curp);
+      if (curpExistTutor)
+        return res.status(400).json(["Ya existe un tutor con el mismo CURP"]);
 
-    const emailExistFather = await ParentModel.emailExist(
-      req.body.father_email
-    );
-
-    /* Validar emails */
-    if (emailExistFather)
-      return res.status(400).json(["Ya existe un padre con el mismo email"]);
-
-    const emailExistMother = await ParentModel.emailExist(
-      req.body.mother_email
-    );
-    if (emailExistMother)
-      return res.status(400).json(["Ya existe una madre con el mismo email"]);
-
-    const emailExistTutor = await ParentModel.emailExist(req.body.tutor_email);
-    if (emailExistTutor)
-      return res.status(400).json(["Ya existe un tutor con el mismo email"]);
+      const emailExistTutor = await ParentModel.emailExist(
+        req.body.tutor_email
+      );
+      if (emailExistTutor)
+        return res.status(400).json(["Ya existe un tutor con el mismo email"]);
+    }
 
     const rowsParents = await ParentModel.create(req.body);
 
@@ -251,19 +268,20 @@ export const updateUser = async (req, res) => {
         .json(["El correo electrónico ya fue registrado anteriormente."]);
 
     /*  */
-    const roleFound = await RoleModel.getById({ id: role });
+    const roleFound = await RoleModel.getById(+role);
 
     if (!roleFound) return res.status(404).json(["Rol inválido."]);
 
     /*  */
-    const addressFound = await AddressModel.getById({ id: addressid });
+    const addressFound = await AddressModel.getById(+addressid);
 
     if (!addressFound)
       return res.status(404).json(["Dirección no encontrada."]);
 
     /*  */
     if (req.file) {
-      if (userFound[0].imageperfile && userFound[0].imageperfile !== "") {
+      const userFound = await UserModel.getById(req.params.id);
+      if (userFound.imageperfile && userFound[0].imageperfile !== "") {
         deleteImagePerfile(userFound[0].imageperfile);
       }
 
@@ -276,7 +294,11 @@ export const updateUser = async (req, res) => {
           ]);
     }
 
-    const result = await UserModel.update(req.params.id, req.body);
+    const result = await UserModel.update(
+      req.params.id,
+      req.body,
+      uploadedImage
+    );
 
     if (result.affectedRows === 0)
       return res
@@ -298,7 +320,7 @@ export const updateTeacher = async (req, res) => {
   const { firstname, curp, addressid } = req.body;
 
   try {
-    const addressFound = await AddressModel.getById(addressid);
+    const addressFound = await AddressModel.getById(+addressid);
 
     if (!addressFound)
       return res.status(404).json(["Dirección no encontrada."]);
@@ -320,29 +342,42 @@ export const updateTeacher = async (req, res) => {
 };
 
 export const updateStudent = async (req, res) => {
-  const { firstname, curp, addressid, curp_father, curp_mother, curp_tutor } =
-    req.body;
+  const {
+    student_firstname,
+    student_curp,
+    student_addressid,
+    father_curp,
+    mother_curp,
+    tutor_curp,
+  } = req.body;
 
   try {
-    const addressFound = await AddressModel.getById(addressid);
+    const addressFound = await AddressModel.getById(student_addressid);
 
     if (!addressFound)
       return res.status(404).json(["Dirección no encontrada."]);
 
-    if (curp_father) {
-      const curpFoundFather = await ParentModel.curpExist(curp_father);
+    if (
+      (father_curp === "" && mother_curp === "") ||
+      (!father_curp && !mother_curp)
+    ) {
+      return res.status(404).json(["Debe registrar al menos un padre."]);
+    }
+
+    if (father_curp) {
+      const curpFoundFather = await ParentModel.curpExist(father_curp);
       if (!curpFoundFather)
         return res.status(404).json(["CURP del padre no encontrada."]);
     }
 
-    if (curp_mother) {
-      const curpFoundMother = await ParentModel.curpExist(curp_mother);
+    if (mother_curp) {
+      const curpFoundMother = await ParentModel.curpExist(mother_curp);
       if (!curpFoundMother)
         return res.status(404).json(["CURP de la madre no encontrada."]);
     }
 
-    if (curp_tutor) {
-      const curpFoundTutor = await ParentModel.curpExist(curp_tutor);
+    if (tutor_curp) {
+      const curpFoundTutor = await ParentModel.curpExist(tutor_curp);
       if (!curpFoundTutor)
         return res.status(404).json(["CURP del tutor no encontrada."]);
     }
@@ -354,8 +389,8 @@ export const updateStudent = async (req, res) => {
       return res.status(404).json(["No se pudo actualizar el estudiante."]);
 
     res.json({
-      firstname,
-      curp,
+      student_firstname,
+      student_curp,
     });
   } catch (error) {
     console.log(error);
@@ -550,6 +585,7 @@ export const getParent = async (req, res) => {
 export const getParents = async (req, res) => {
   try {
     const parents = await ParentModel.getAll();
+    
     res.json(parents);
   } catch (error) {
     res.status(500).json(["Hubo un error al obtener los padres."]);

@@ -40,6 +40,7 @@ import {
   fatherSchema,
   motherSchema,
   tutorSchema,
+  parentSchema,
 } from "../schemas/admin.schema.js";
 import multer from "multer"
 import { uploadImagePerfile } from "../config.js";
@@ -86,6 +87,13 @@ router.post(
   validateSchema(studentSchema),
   registerStudent
 );
+/* router.post(
+  "/admin/registerparent",
+  authRequired,
+  validateRol("admin"),
+  validateSchema(fatherSchema),
+  registerParent
+); */
 router.post(
   "/admin/registerfather",
   authRequired,
@@ -137,24 +145,10 @@ router.put(
   updateStudent
 );
 router.put(
-  "/admin/updatefather/:id",
+  "/admin/updateparent/:id",
   authRequired,
   validateRol("admin"),
-  validateSchema(fatherSchema),
-  updateParent
-);
-router.put(
-  "/admin/updatemother/:id",
-  authRequired,
-  validateRol("admin"),
-  validateSchema(motherSchema),
-  updateParent
-);
-router.put(
-  "/admin/updatetutor/:id",
-  authRequired,
-  validateRol("admin"),
-  validateSchema(tutorSchema),
+  validateSchema(parentSchema),
   updateParent
 );
 router.put(

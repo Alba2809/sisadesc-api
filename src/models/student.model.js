@@ -54,12 +54,15 @@ export class StudentModel {
         phonenumber: value.phonenumber,
         birthdate: value.birthdate,
         gender: value.gender,
+        group: value.group,
+        email: value.email,
         father_curp: value.father_curp,
         mother_curp: value.mother_curp,
         tutor_curp: value.tutor_curp,
         createdAt: value.formattedCreatedAt,
         updatedAt: value.formattedUpdatedAt,
         address: {
+          id: value.address_id,
           postalcode: value.address_cp,
           street: value.street,
           settlement: value.address_settlement,
@@ -100,7 +103,7 @@ export class StudentModel {
 
   static async update(id, input) {
     const [result] = await pool.query(
-      "UPDATE students SET firstname = ?, lastnamepaternal = ?, lastnamematernal = ?, curp = ?, gender = ?, birthdate = ?, address_id = ?, street = ?, email = ?, group = ?, phonenumber = ?, father_curp = ?, mother_curp = ?, tutor_curp = ? WHERE id = ?",
+      "UPDATE students SET firstname = ?, lastnamepaternal = ?, lastnamematernal = ?, curp = ?, gender = ?, birthdate = ?, address_id = ?, street = ?, email = ?, students.group = ?, phonenumber = ?, father_curp = ?, mother_curp = ?, tutor_curp = ? WHERE id = ?",
       [
         input.student_firstname,
         input.student_lastnamepaternal,
@@ -113,9 +116,9 @@ export class StudentModel {
         input.student_email,
         input.student_group,
         input.student_phonenumber,
-        input.father_curp,
-        input.mother_curp,
-        input.tutor_curp,
+        input.father_curp === "" ? null: input.father_curp,
+        input.mother_curp === "" ? null: input.mother_curp,
+        input.tutor_curp === "" ? null : input.tutor_curp,
         id,
       ]
     );

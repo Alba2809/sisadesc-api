@@ -3,7 +3,7 @@ import { pool } from "../db.js";
 export class ParentModel {
   static async getAll() {
     const [parents] = await pool.query(
-      "SELECT parents.*, DATE_FORMAT(parents.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(parents.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city FROM parents JOIN addresses ON parents.address_id = addresses.id"
+      "SELECT COUNT(DISTINCT students.id) AS total_students, parents.*, DATE_FORMAT(parents.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(parents.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city FROM parents LEFT JOIN students ON students.father_curp = parents.curp OR students.mother_curp = parents.curp OR students.tutor_curp = parents.curp JOIN addresses ON parents.address_id = addresses.id GROUP BY parents.id"
     );
 
     const parentsWithDetails = parents.map((value) => {
@@ -19,7 +19,7 @@ export class ParentModel {
         birthdate: value.birthdate,
         gender: value.gender,
         status: value.status,
-        type: value.type,
+        total_students: value.total_students,
         createdAt: value.formattedCreatedAt,
         updatedAt: value.formattedUpdatedAt,
         address: {
@@ -56,10 +56,10 @@ export class ParentModel {
         birthdate: value.birthdate,
         gender: value.gender,
         status: value.status,
-        type: value.type,
         createdAt: value.formattedCreatedAt,
         updatedAt: value.formattedUpdatedAt,
         address: {
+          id: value.address_id,
           postalcode: value.address_cp,
           street: value.street,
           settlement: value.address_settlement,
@@ -79,7 +79,7 @@ export class ParentModel {
 
     if (input.father_firstname) {
       const rowFather = await pool.query(
-        "INSERT INTO parents (firstname, lastnamepaternal, lastnamematernal, curp, email, rfc, phonenumber, address_id, birthdate, gender, status, street, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO parents (firstname, lastnamepaternal, lastnamematernal, curp, email, rfc, phonenumber, address_id, birthdate, gender, status, street) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           input.father_firstname,
           input.father_lastnamepaternal,
@@ -93,15 +93,13 @@ export class ParentModel {
           input.father_gender,
           input.father_status,
           input.father_street,
-          "Padre/Madre",
         ]
       );
 
-      if (rowFather.affectedRows > 0) allInserts.push(rowFather.insertId);
-    }
-    if (input.mother_firstname) {
+      if (rowFather[0].affectedRows > 0) allInserts.push(rowFather[0].insertId);
+    } else if (input.mother_firstname) {
       const rowMother = await pool.query(
-        "INSERT INTO parents (firstname, lastnamepaternal, lastnamematernal, curp, email, rfc, phonenumber, address_id, birthdate, gender, status, street, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO parents (firstname, lastnamepaternal, lastnamematernal, curp, email, rfc, phonenumber, address_id, birthdate, gender, status, street) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           input.mother_firstname,
           input.mother_lastnamepaternal,
@@ -115,15 +113,13 @@ export class ParentModel {
           input.mother_gender,
           input.mother_status,
           input.mother_street,
-          "Padre/Madre",
         ]
       );
 
-      if (rowMother.affectedRows > 0) allInserts.push(rowMother.insertId);
-    }
-    if (input.tutor_firstname) {
+      if (rowMother[0].affectedRows > 0) allInserts.push(rowMother[0].insertId);
+    } else if (input.tutor_firstname) {
       const rowTutor = await pool.query(
-        "INSERT INTO parents (firstname, lastnamepaternal, lastnamematernal, curp, email, rfc, phonenumber, address_id, birthdate, gender, status, street, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO parents (firstname, lastnamepaternal, lastnamematernal, curp, email, rfc, phonenumber, address_id, birthdate, gender, status, street) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           input.tutor_firstname,
           input.tutor_lastnamepaternal,
@@ -137,11 +133,10 @@ export class ParentModel {
           input.tutor_gender,
           input.tutor_status,
           input.tutor_street,
-          "Tutor",
         ]
       );
 
-      if (rowTutor.affectedRows > 0) allInserts.push(rowTutor.insertId);
+      if (rowTutor[0].affectedRows > 0) allInserts.push(rowTutor[0].insertId);
     }
 
     return allInserts;
@@ -149,7 +144,7 @@ export class ParentModel {
 
   static async update(id, input) {
     const result = await pool.query(
-      "UPDATE parents SET firstname = ?, lastnamepaternal = ?, lastnamematernal = ?, curp = ?, email = ?, rfc = ?, phonenumber = ?, address_id = ?, birthdate = ?, gender = ?, status = ?, type = ?, street = ? WHERE id = ?",
+      "UPDATE parents SET firstname = ?, lastnamepaternal = ?, lastnamematernal = ?, curp = ?, email = ?, rfc = ?, phonenumber = ?, address_id = ?, birthdate = ?, gender = ?, status = ?, street = ? WHERE id = ?",
       [
         input.firstname,
         input.lastnamepaternal,
@@ -162,7 +157,6 @@ export class ParentModel {
         input.birthdate,
         input.gender,
         input.status,
-        input.type,
         input.street,
         id,
       ]
