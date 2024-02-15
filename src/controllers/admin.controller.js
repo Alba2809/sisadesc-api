@@ -4,6 +4,7 @@ import { AddressModel } from "../models/address.model.js";
 import { ParentModel } from "../models/parent.model.js";
 import { RoleModel } from "../models/role.model.js";
 import { StudentModel } from "../models/student.model.js";
+import { SubjectModel } from "../models/subject.model.js";
 import { TeacherModel } from "../models/teacher.model.js";
 import { UserModel } from "../models/user.model.js";
 
@@ -191,65 +192,68 @@ export const registerParent = async (req, res) => {
 };
 
 export const registerSubject = async (req, res) => {
-  const { name, code, group, students, teacher } = req.body;
+  const { name, code, students, teacher } = req.body;
 
   try {
-    const [sameCode] = await pool.query(
-      "SELECT * FROM subjects WHERE code = ?",
-      [code]
-    );
+    /* Código en uso */
+    const sameCode = await SubjectModel.getByCode(code)
 
-    if (sameCode[0])
+    if (sameCode)
       return res
         .status(404)
         .json(["Ya existe una materia con el mismo código"]);
 
-    const [foundStudents] = await pool.query(
-      "SELECT COUNT(*) AS total FROM students WHERE id IN (?)",
-      [students.map((student) => student.id)]
-    );
-
-    if (foundStudents.length < students.length) {
-      return res
-        .status(404)
-        .json([
-          `No se encontraron ${
-            students.length - foundStudents.length
-          } estudiante(s)`,
-        ]);
+    /* Existe el docente */
+    if(teacher){
+      const foundTeacher = await TeacherModel.getById(teacher)
+    
+      if (!foundTeacher) {
+        return res.status(404).json(["No se encontró al docente."]);
+      }
     }
 
-    const [foundTeacher] = await pool.query(
-      "SELECT * FROM teachers WHERE id = ?",
-      [teacher.id]
-    );
-
-    if (!foundTeacher[0]) {
-      return res.status(404).json(["No se encontró al docente."]);
+    /* Existen los estudiantes */
+    if(students){
+      const foundStudents = await StudentModel.getStudentsById(students)
+  
+      if (foundStudents.length < students.length) {
+        return res
+          .status(404)
+          .json([
+            `No se encontraron ${
+              students.length - foundStudents.length
+            } estudiante(s)`,
+          ]);
+      }
     }
 
-    const [rows] = await pool.query(
-      "INSER INTO subjects (name, code, group, teacher) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [name, code, group, teacher.id]
-    );
+    const rowSubject = await SubjectModel.create(req.body)
 
-    let studentsRegistered = 0;
-    students.map(async (student) => {
-      const [rows] = await pool.query(
-        "INSERT INTO subject_students (subject, student) VALUES (?, ?)",
-        [rows.insertId, student.id]
-      );
+    if(rowSubject.affectedRows !== 1) return
 
-      if (rows) studentsRegistered++;
+    let studentsRegistered = [];
+    students?.map(async (student) => {
+      const rowStudent = await SubjectModel.createSubjectStudent(rowSubject.insertId, student)
+
+      if (rowStudent.affectedRows === 1) studentsRegistered.push(rowStudent.insertId);
     });
+
+    if(studentsRegistered.length !== students?.length){
+      const result = await SubjectModel.deleteSubjectStudent(rowSubject.insertId)
+
+      if (result.affectedRows <= 0)
+          return res.status(404).json(["No se pudieron eliminar todos lo registros."]);
+
+      return res.status(400).json(["No se pudieron registrar todos los estudiantes. Intentelo de nuevo."]);
+    }
 
     res.json({
-      name: name,
-      subjectid: "ASIG" + rows.insertId,
-      students_total: studentsRegistered,
+      name,
+      subjectid: "ASIG" + rowSubject.insertId,
+      students_total: studentsRegistered.length,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al registrar la materia."]);
   }
 };
 
@@ -431,74 +435,71 @@ export const updateParent = async (req, res) => {
 };
 
 export const updateSubject = async (req, res) => {
-  const { name, code, group, students, teacher } = req.body;
+  const { name, code, students, teacher } = req.body;
   try {
-    const [sameCode] = await pool.query(
-      "SELECT * FROM subjects WHERE code = ? AND id != ?",
-      [code, req.params.id]
-    );
+    /* Código en uso */
+    const sameCode = await SubjectModel.getByCodeUpdate(req.params.id, code)
 
-    if (sameCode[0])
+    if (sameCode)
       return res
         .status(404)
-        .json(["Ya existe una materia con el mismo código."]);
+        .json(["Ya existe una materia con el mismo código"]);
 
-    /*  */
-    const [foundStudents] = await pool.query(
-      "SELECT COUNT(*) AS total FROM students WHERE id IN (?)",
-      [students.map((student) => student.id)]
-    );
-
-    if (foundStudents.length < students.length) {
-      return res
-        .status(404)
-        .json([
-          `No se encontraron ${
-            students.length - foundStudents.length
-          } estudiante(s)`,
-        ]);
+    /* Existe el docente */
+    if(teacher){
+      const foundTeacher = await TeacherModel.getById(teacher)
+    
+      if (!foundTeacher) {
+        return res.status(404).json(["No se encontró al docente."]);
+      }
     }
 
-    /*  */
-    const [foundTeacher] = await pool.query(
-      "SELECT * FROM teachers WHERE id = ?",
-      [teacher.id]
-    );
-
-    if (!foundTeacher[0]) {
-      return res.status(404).json(["No se encontró al docente."]);
+    /* Existen los estudiantes */
+    if(students){
+      const foundStudents = await StudentModel.getStudentsById(students)
+  
+      if (foundStudents.length < students.length) {
+        return res
+          .status(404)
+          .json([
+            `No se encontraron ${
+              students.length - foundStudents.length
+            } estudiante(s)`,
+          ]);
+      }
     }
 
-    /* Se eliminan todos los estudiantes de la materia para poder ingresar a los otros estudiantes */
-    const [result] = await pool.query(
-      "DELETE FROM subject_students WHERE subject = ?",
-      [req.params.id]
-    );
+    /* Se actualiza el registro general de la materia */
+    const updatedSubject = await SubjectModel.update(req.params.id, req.body)
 
-    if (result.affectedRows <= 0)
-      return res
-        .status(404)
-        .json([
-          "No se pudieron reemplezar los estudiantes de la materia. Intente de nuevo",
-        ]);
+    if(updatedSubject.affectedRows <= 0) return res.status(400).json(["No se pudo actualizar la materia."]);
 
-    /*  */
-    const [resultSubject] = await pool.query(
-      "UPDATE subjects SET name = ?, code = ?, group = ?, teacher = ?",
-      [name, code, group, teacher.id]
-    );
+    /* Se eliminan los estudiantes existentes de la materia para ingresar los nuevos */
+    await SubjectModel.deleteSubjectStudent(req.params.id)
 
-    students.map(async (student) => {
-      const [rows] = await pool.query(
-        "INSERT INTO subject_students (subject, student) VALUES (?, ?)",
-        [rows.insertId, student.id]
-      );
+    /* Se registran los estudiantes */
+    let studentsRegistered = [];
+    students?.map(async (student) => {
+      const rowStudent = await SubjectModel.createSubjectStudent(req.params.id, student)
+
+      if (rowStudent.affectedRows === 1) studentsRegistered.push(rowStudent.insertId);
     });
 
-    if (resultSubject.affectedRows === 0)
-      return res.status(404).json(["Materia no encontrada."]);
+    /* En caso de falla, se eliminan los registrados */
+    if(studentsRegistered.length !== students?.length){
+      const result = await SubjectModel.deleteSubjectStudent(req.params.id)
 
-    res.json(resultSubject);
+      if (result.affectedRows <= 0)
+          return res.status(404).json(["No se pudieron eliminar todos lo registros."]);
+
+      return res.status(400).json(["No se pudieron registrar todos los estudiantes. Intentelo de nuevo."]);
+    }
+
+    res.json({
+      name,
+      subjectid: "ASIG" + rowSubject.insertId,
+      students_total: studentsRegistered.length,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -594,70 +595,20 @@ export const getParents = async (req, res) => {
 
 export const getSubject = async (req, res) => {
   try {
-    const [subjectFound] = await pool.query(
-      "SELECT * from subjects WHERE id = ?",
-      [req.params.id]
-    );
+    const subjectFound = await SubjectModel.getById(req.params.id)
 
-    if (!subjectFound[0])
+    if (!subjectFound)
       return res.status(404).json(["Materia no encontrada."]);
 
-    /*  */
-    const [studentsID] = await pool.query(
-      "SELECT * from subject_students WHERE subject = ?",
-      [req.params.id]
-    );
-
-    /*  */
-    const [teacherFound] = await pool.query(
-      "SELECT * from teachers WHERE id = ?",
-      [subjectFound[0].teacher]
-    );
-
-    /*  */
-    const [studentsFound] = await pool.query(
-      "SELECT students.*, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from students JOIN addresses ON students.address_id = addresses.id WHERE students.id IN (?)",
-      [studentsID.map((value) => value.student)]
-    );
-
-    const allStudents = studentsFound.map((student) => ({
-      id: student.id,
-      firstname: student.firstname,
-      lastnamepaternal: student.lastnamepaternal,
-      lastnamematernal: student.lastnamematernal,
-      curp: student.curp,
-      gender: student.gender,
-      birthdate: student.birthdate,
-      address: {
-        id: student.address_id,
-        cp: student.address_cp,
-        settlement: student.address_settlement,
-        type: student.address_type,
-        town: student.address_town,
-        state: student.address_state,
-        city: student.address_city,
-        street: student.street,
-      },
-      email: student.email,
-      group: student.group,
-      phonenumber: student.phonenumber,
-    }));
-
-    const result = {
-      ...subjectFound[0],
-      teacher_data: teacherFound[0] ?? [],
-      students: allStudents,
-    };
-
-    res.json(result);
+    res.json(subjectFound);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al obtener la materia."]);
   }
 };
 
 export const getSubjects = async (req, res) => {
   try {
-    const [subjects] = await pool.query("SELECT * from subjects");
+    const subjects = await SubjectModel.getAll()
 
     res.json(subjects);
   } catch (error) {
@@ -739,12 +690,10 @@ export const deleteParent = async (req, res) => {
 
 export const deleteSubject = async (req, res) => {
   try {
-    const [result] = await pool.query("DELETE FROM subjects WHERE id = ?", [
-      req.params.id,
-    ]);
+    const result = await SubjectModel.deleteSubject(req.params.id)
 
     if (result.affectedRows <= 0)
-      return res.status(404).json(["Docente no encontrado."]);
+      return res.status(404).json(["Materia no encontrada."]);
 
     res.json(result.affectedRows);
   } catch (error) {

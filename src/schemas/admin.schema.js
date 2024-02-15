@@ -665,7 +665,7 @@ export const subjectSchema = z.object({
       })
     )
     .refine((array) => array.length > 0, {
-      message: "Debe haber al menos una asignatura.",
+      message: "Debe haber al menos un estudiante.",
     })
     .optional(),
   teacher: z.coerce

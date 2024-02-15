@@ -77,6 +77,15 @@ export class StudentModel {
     return studentsWithDetails[0];
   }
 
+  static async getStudentsById(ids){
+    const [foundStudents] = await pool.query(
+      "SELECT * from students WHERE id IN (?)",
+      [ids]
+    );
+
+    return foundStudents
+  }
+
   static async create(input) {
     const rows = await pool.query(
       "INSERT INTO students (firstname, lastnamepaternal, lastnamematernal, curp, gender, birthdate, address_id, street, email, students.group, phonenumber, father_curp, mother_curp, tutor_curp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
