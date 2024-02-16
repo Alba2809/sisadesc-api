@@ -71,6 +71,15 @@ export class TeacherModel {
     return teachersWithDetails[0];
   }
 
+  static async getByCurp(id) {
+    const [foundTeacher] = await pool.query(
+      "SELECT * from teachers WHERE curp = ?",
+      [id]
+    );
+
+    return foundTeacher[0];
+  }
+
   static async create(input) {
     const {
       firstname,

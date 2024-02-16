@@ -662,16 +662,17 @@ export const subjectSchema = z.object({
       z.coerce.number({
         required_error: "Se requiere asignar los estudiantes.",
         invalid_type_error: "El identificador de un estudiante no es válido.",
-      })
+      }),
+      { invalid_type_error: "El contenedor de los estudiantes no es un array." }
     )
     .refine((array) => array.length > 0, {
       message: "Debe haber al menos un estudiante.",
     })
-    .optional(),
+    .optional().nullable(),
   teacher: z.coerce
-    .number({
+    .string({
       required_error: "Se requiere asignar el docente.",
-      invalid_type_error: "El identificador del docente no es válido.",
+      invalid_type_error: "La CURP del docente no es válido.",
     })
-    .optional(),
+    .optional().nullable(),
 });

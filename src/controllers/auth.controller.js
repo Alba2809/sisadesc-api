@@ -28,9 +28,10 @@ export const login = async (req, res) => {
       secure: true,
       httpOnly: false,
     });
+    
     res.json({
       firstname: userFound[0].firstname,
-      role: userFound[0].role_name,
+      role_name: userFound[0].role_name,
       email: userFound[0].email,
       imageperfile: userFound[0].imageperfile,
       token,

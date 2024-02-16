@@ -1,9 +1,10 @@
 import { pool } from "../db.js";
+import { TeacherModel } from "./teacher.model.js";
 
 export class SubjectModel {
   static async getAll() {
     const [subjects] = await pool.query(
-      "SELECT subjects.id, subjects.name, subjects.code, subjects.group, subjects.teacher_id, teachers.curp, DATE_FORMAT(subjects.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS createdAt, DATE_FORMAT(subjects.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS updatedAt, COUNT(subject_students.id) AS students_total FROM subjects JOIN subject_students on subjects.id = subject_students.subject_id JOIN teachers ON subjects.teacher_id = teachers.id GROUP BY subject_students.subject_id"
+      "SELECT subjects.id, subjects.name, subjects.code, subjects.group, subjects.teacher_id, teachers.curp, DATE_FORMAT(subjects.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS createdAt, DATE_FORMAT(subjects.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS updatedAt, COUNT(DISTINCT subject_students.id) AS students_total FROM subjects LEFT JOIN subject_students ON subjects.id = subject_students.subject_id LEFT JOIN teachers ON subjects.teacher_id = teachers.id GROUP BY subjects.id"
     );
 
     return subjects;
@@ -11,14 +12,14 @@ export class SubjectModel {
 
   static async getById(id) {
     const [foundSubject] = await pool.query(
-      "SELECT id, name, code, subjects.group, teacher_id, DATE_FORMAT(createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS createdAt, DATE_FORMAT(updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS updatedAt FROM subjects WHERE id = ?",
+      "SELECT subjects.id, subjects.name, subjects.code, subjects.group, subjects.teacher_id, teachers.curp AS teacher_curp, DATE_FORMAT(subjects.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS createdAt, DATE_FORMAT(subjects.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS updatedAt FROM subjects LEFT JOIN teachers ON subjects.teacher_id = teachers.id WHERE subjects.id = ?",
       [id]
     );
 
     if(!foundSubject[0]) return false
 
     const [students] = await pool.query(
-      "SELECT * FROM subject_students WHERE subject_id = ?",
+      "SELECT student_id FROM subject_students WHERE subject_id = ?",
       [id]
     );
 
@@ -28,12 +29,22 @@ export class SubjectModel {
         code: foundSubject[0].code,
         group: foundSubject[0].group,
         teacher_id: foundSubject[0].teacher_id,
+        teacher_curp: foundSubject[0].teacher_curp,
         createdAt: foundSubject[0].createdAt,
         updatedAt: foundSubject[0].updatedAt,
         students
     }
 
     return allData;
+  }
+
+  static async getSubjectStudents(id) {
+    const [students] = await pool.query(
+      "SELECT subject_students.*, students.firstname, students.lastnamepaternal, students.lastnamematernal, students.curp FROM subject_students JOIN students ON subject_students.student_id = students.id WHERE subject_id = ?",
+      [id]
+    );
+
+    return students;
   }
 
   static async getByCode(code) {
@@ -55,9 +66,12 @@ export class SubjectModel {
   }
 
   static async create(input) {
+    let teacher = []
+    if(input.teacher) teacher = await TeacherModel.getByCurp(input.teacher)
+
     const [rows] = await pool.query(
-      "INSERT INTO subjects (name, code, group, teacher_id) VALUES (?, ?, ?, ?)",
-      [input.name, input.code, input.group, input.teacher]
+      "INSERT INTO subjects (name, code, subjects.group, teacher_id) VALUES (?, ?, ?, ?)",
+      [input.name, input.code, input.group, teacher?.id || null]
     );
 
     return rows;
@@ -73,9 +87,12 @@ export class SubjectModel {
   }
 
   static async update(id, input) {
+    let teacher = []
+    if(input.teacher) teacher = await TeacherModel.getByCurp(input.teacher)
+
     const [result] = await pool.query(
-      "UPDATE subjects SET name = ?, code = ?, group = ?, teacher_id = ? WHERE id = ?",
-      [input.name, input.code, input.group, input.teacher, id]
+      "UPDATE subjects SET name = ?, code = ?, subjects.group = ?, teacher_id = ? WHERE id = ?",
+      [input.name, input.code, input.group, teacher?.id || null, id]
     );
 
     return result;
