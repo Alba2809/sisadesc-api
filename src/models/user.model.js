@@ -1,4 +1,3 @@
-import { deleteImagePerfile, uploadImagePerfile } from "../config.js";
 import { pool } from "../db.js";
 import bcrypt from "bcryptjs";
 
@@ -63,6 +62,7 @@ export class UserModel {
         imageperfile: user.imageperfile,
         status: user.status,
         email: user.email,
+        password: user.password,
         createdAt: user.formattedCreatedAt,
         updatedAt: user.formattedUpdatedAt,
         role: {
@@ -81,6 +81,48 @@ export class UserModel {
         },
       };
     });
+
+    return usersWithDetails[0];
+  }
+
+  static async getByEmail(email) {
+    const [userFound] = await pool.query(
+      "SELECT users.*, DATE_FORMAT(users.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(users.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, roles.name AS role_name, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id LEFT JOIN addresses ON users.address_id = addresses.id WHERE users.email = ?",
+      [email]
+    );
+
+    const usersWithDetails = userFound.map((user) => {
+      return {
+        id: user.id,
+        firstname: user.firstname,
+        lastnamepaternal: user.lastnamepaternal,
+        lastnamematernal: user.lastnamematernal,
+        curp: user.curp,
+        rfc: user.rfc,
+        phonenumber: user.phonenumber,
+        birthdate: user.birthdate,
+        imageperfile: user.imageperfile,
+        status: user.status,
+        password: user.password,
+        email: user.email,
+        createdAt: user.formattedCreatedAt,
+        updatedAt: user.formattedUpdatedAt,
+        role: {
+          id: user.role,
+          name: user.role_name,
+        },
+        address: {
+          postalcode: user.address_cp,
+          street: user.street,
+          settlement: user.address_settlement,
+          type_settlement: user.address_type,
+          town: user.address_town,
+          state: user.address_state,
+          city: user.address_city,
+        },
+      };
+    });
+
 
     return usersWithDetails[0];
   }
@@ -149,6 +191,20 @@ export class UserModel {
         uploadedImage,
         email,
         +role,
+        id,
+      ]
+    );
+
+    return result;
+  }
+
+  static async updatePassword(id, password) {
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const [result] = await pool.query(
+      "UPDATE users SET password = ? WHERE id = ?",
+      [
+        passwordHash,
         id,
       ]
     );

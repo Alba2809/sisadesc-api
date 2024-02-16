@@ -662,7 +662,7 @@ export const getRoles = async (req, res) => {
 
     res.json(roles);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al obtener los roles."]);
   }
 };
 
@@ -672,7 +672,7 @@ export const getAddresses = async (req, res) => {
 
     res.json(addresses);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al obtener las direcciones."]);
   }
 };
 
@@ -685,7 +685,7 @@ export const deleteUser = async (req, res) => {
 
     res.json(result.affectedRows);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al eliminar el usuario."]);
   }
 };
 
@@ -737,6 +737,6 @@ export const deleteSubject = async (req, res) => {
 
     res.json(result.affectedRows);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json(["Hubo un error al eliminar la materia."]);
   }
 };

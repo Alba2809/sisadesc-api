@@ -15,44 +15,32 @@ export const loginSchema = z.object({
     .string({
       required_error: "La contraseña es requerida.",
     })
-    .min(6, {
-      message: "La contraseña debe de tener al menos 6 caracteres.",
+    .min(8, {
+      message: "La contraseña debe de tener al menos 8 caracteres.",
     })
     .max(25, { message: "La contraseña debe tener un máximo 25 caracteres." }),
 });
 
-/* 
-export const updateSchema = z.object({
-  email: z
+
+export const updatePasswordSchema = z.object({
+  oldPassword: z
     .string({
-      required_error: "El correo es requerido.",
+      required_error: "La contraseña actual es requerida.",
     })
-    .email({
-      message: "Correo inválido.",
+    .min(8, {
+      message: "La contraseña actual debe de tener al menos 8 caracteres.",
     })
-    .max(50, {
-      message: "El correo electrónico debe tener un máximo de 50 caracteres.",
-    }),
-  phonenumber: z
+    .max(25, { message: "La contraseña actual debe tener un máximo 25 caracteres." }),
+  newPassword: z
     .string({
-      required_error: "El telefono es requerido.",
+      required_error: "La contraseña nueva es requerida.",
     })
-    .length(10, {
-      message: "El teléfono debe tener 10 dígitos.",
-    }),
-  firstname: z
+    .min(8, {
+      message: "La contraseña nueva debe de tener al menos 8 caracteres.",
+    })
+    .max(25, { message: "La contraseña nueva debe tener un máximo 25 caracteres." }),
+  confirmPassword: z
     .string({
-      required_error: "El nombre es requerido.",
+      required_error: "Se requiere confirmar la nueva contraseña.",
     })
-    .max(25, {
-      message: "El campo nombre(s) debe tener un máximo de 25 caracteres.",
-    }),
-  lastname: z
-    .string({
-      required_error: "El apellido es requerido.",
-    })
-    .max(25, {
-      message: "Los apellidos deben tener un máximo de 25 caracteres.",
-    }),
 });
- */
