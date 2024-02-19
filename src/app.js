@@ -11,6 +11,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import teacherRoutes from "./routes/teacher.routes.js";
 
 const app = express();
 createRoles();
@@ -40,6 +41,7 @@ app.use(
 );
  */
 app.use("/api", authRoutes);
-app.use("/api", adminRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/teacher", teacherRoutes)
 
 export default app;

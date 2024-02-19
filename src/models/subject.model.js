@@ -38,6 +38,7 @@ export class SubjectModel {
     return allData;
   }
 
+  /* Se obtienen todos los estudiantes de una materia */
   static async getSubjectStudents(id) {
     const [students] = await pool.query(
       "SELECT subject_students.*, students.firstname, students.lastnamepaternal, students.lastnamematernal, students.curp FROM subject_students JOIN students ON subject_students.student_id = students.id WHERE subject_id = ?",
@@ -63,6 +64,33 @@ export class SubjectModel {
     );
 
     return foundSubject[0];
+  }
+
+  static async getSubjectsOfTeacher(teacher_id) {
+    const [subjects] = await pool.query(
+      "SELECT * FROM subjects WHERE teacher_id = ?",
+      [teacher_id]
+    );
+
+    return subjects;
+  }
+
+  static async getSubjectStudents(subject_id){
+    const [rows] = await pool.query(
+      "SELECT subject_students.id AS subject_student_id, students.id AS student_id, students.firstname, students.lastnamepaternal, students.lastnamematernal, students.curp FROM subject_students LEFT JOIN students ON subject_students.student_id = students.id WHERE subject_students.subject_id = ?",
+      [subject_id]
+    );
+
+    return rows;
+  }
+
+  static async getSubjectOfStudent(subject_student_id){
+    const [rows] = await pool.query(
+      "SELECT subject_id FROM subject_students WHERE id = ?",
+      [subject_student_id]
+    );
+
+    return rows[0];
   }
 
   static async create(input) {

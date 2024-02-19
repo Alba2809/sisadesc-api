@@ -68,63 +68,63 @@ const upload = multer({
 }); */
 
 router.post(
-  "/admin/registeruser",
+  "/registeruser",
   authRequired,
   validateRol("admin"),
   validateSchema(createUserSchema),
   registerUser
 );
 router.post(
-  "/admin/registerteacher",
+  "/registerteacher",
   authRequired,
   validateRol("admin"),
   validateSchema(teacherSchema),
   registerTeacher
 );
 router.post(
-  "/admin/registerstudent",
+  "/registerstudent",
   authRequired,
   validateRol("admin"),
   validateSchema(studentSchema),
   registerStudent
 );
 /* router.post(
-  "/admin/registerparent",
+  "/registerparent",
   authRequired,
   validateRol("admin"),
   validateSchema(fatherSchema),
   registerParent
 ); */
 router.post(
-  "/admin/registerfather",
+  "/registerfather",
   authRequired,
   validateRol("admin"),
   validateSchema(fatherSchema),
   registerParent
 );
 router.post(
-  "/admin/registermother",
+  "/registermother",
   authRequired,
   validateRol("admin"),
   validateSchema(motherSchema),
   registerParent
 );
 router.post(
-  "/admin/registertutor",
+  "/registertutor",
   authRequired,
   validateRol("admin"),
   validateSchema(tutorSchema),
   registerParent
 );
 router.post(
-  "/admin/registersubject",
+  "/registersubject",
   authRequired,
   validateRol("admin"),
   validateSchema(subjectSchema),
   registerSubject
 );
 router.put(
-  "/admin/updateuser/:id",
+  "/updateuser/:id",
   authRequired,
   validateRol("admin"),
   upload.single("imageperfile"),
@@ -132,131 +132,131 @@ router.put(
   updateUser
 );
 router.put(
-  "/admin/updateteacher/:id",
+  "/updateteacher/:id",
   authRequired,
   validateRol("admin"),
   validateSchema(teacherSchema),
   updateTeacher
 );
 router.put(
-  "/admin/updatestudent/:id",
+  "/updatestudent/:id",
   authRequired,
   validateRol("admin"),
   validateSchema(studentSchema),
   updateStudent
 );
 router.put(
-  "/admin/updateparent/:id",
+  "/updateparent/:id",
   authRequired,
   validateRol("admin"),
   validateSchema(parentSchema),
   updateParent
 );
 router.put(
-  "/admin/updatesubject/:id",
+  "/updatesubject/:id",
   authRequired,
   validateRol("admin"),
   validateSchema(subjectSchema),
   updateSubject
 );
 router.get(
-  "/admin/getuser/:id",
+  "/getuser/:id",
   authRequired,
   validateRol("admin"),
   getUser
 );
 router.get(
-  "/admin/getusers",
+  "/getusers",
   authRequired,
   validateRol("admin"),
   getUsers
 );
 router.get(
-  "/admin/getteacher/:id",
+  "/getteacher/:id",
   authRequired,
   validateRol("admin"),
   getTeacher
 );
 router.get(
-  "/admin/getteachers",
+  "/getteachers",
   authRequired,
   validateRol("admin"),
   getTeachers
 );
 router.get(
-  "/admin/getstudent/:id",
+  "/getstudent/:id",
   authRequired,
   validateRol("admin"),
   getStudent
 );
 router.get(
-  "/admin/getstudents",
+  "/getstudents",
   authRequired,
   validateRol("admin"),
   getStudents
 );
 router.get(
-  "/admin/getparent/:id",
+  "/getparent/:id",
   authRequired,
   validateRol("admin"),
   getParent
 );
 router.get(
-  "/admin/getparents",
+  "/getparents",
   authRequired,
   validateRol("admin"),
   getParents
 );
 router.get(
-  "/admin/getsubject/:id",
+  "/getsubject/:id",
   authRequired,
   validateRol("admin"),
   getSubject
 );
 router.get(
-  "/admin/getsubjects",
+  "/getsubjects",
   authRequired,
   validateRol("admin"),
   getSubjects
 );
 router.get(
-  "/admin/getsubjectstudents/:id",
+  "/getsubjectstudents/:id",
   authRequired,
   validateRol("admin"),
   getSubjectStudents
 );
 router.get(
-  "/admin/getroles",
+  "/getroles",
   authRequired,
   validateRol("admin"),
   getRoles
 );
 router.get(
-  "/admin/getaddresses",
+  "/getaddresses",
   authRequired,
   validateRol("admin"),
   getAddresses
 );
 router.delete(
-  "/admin/deleteuser/:id",
+  "/deleteuser/:id",
   authRequired,
   validateRol("admin"),
   deleteUser
 );
 router.delete(
-  "/admin/deleteteacher/:id",
+  "/deleteteacher/:id",
   authRequired,
   validateRol("admin"),
   deleteTeacher
 );
 router.delete(
-  "/admin/deletestudent/:id",
+  "/deletestudent/:id",
   authRequired,
   validateRol("admin"),
   deleteStudent
 );
 router.delete(
-  "/admin/deleteparent/:id",
+  "/deleteparent/:id",
   authRequired,
   validateRol("admin"),
   deleteParent

@@ -56,6 +56,8 @@ export const getUser = async (req, res) => {
 
 export const verifyToken = async (req, res) => {
   const { token } = req.cookies;
+  
+  if(req.params.cookie !== token) return res.status(401).json({ message: "Unauthorized" });
 
   if (!token) return res.status(401).json({ message: "Unauthorized" });
 
@@ -68,7 +70,9 @@ export const verifyToken = async (req, res) => {
 
     return res.json({
       firstname: userFound[0].firstname,
-      role: userFound[0].role_name,
+      role: {
+        name: userFound[0].role_name
+      },
       email: userFound[0].email,
     });
   });

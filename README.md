@@ -3,7 +3,8 @@
 # Instalación
 1. Clonar repositorio
 2. Instalar dependencias: 'npm install'
-3. Crear el archivo '.env' con la variable:
+3. Ejecutar el scrip sql de la base de datos
+4. Crear el archivo '.env' con la variable:
    TOKEN_SECRET="cualquier valor de tipo string"
    FIREBASE_APIKEY=""      -> Colocar las credenciales del proyecto de firebase storage
    FIREBASE_AUTHDOMAIN=""

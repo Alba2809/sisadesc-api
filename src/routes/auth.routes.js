@@ -15,7 +15,7 @@ const router = Router();
 router.post("/login", validateSchema(loginSchema), login);
 router.post("/logout", authRequired, logout);
 router.get("/user", authRequired, getUser);
-router.get("/verify", verifyToken);
+router.post("/verify/:cookie", verifyToken);
 router.post(
   "/updatepassword",
   authRequired,

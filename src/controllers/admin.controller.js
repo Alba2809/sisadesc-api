@@ -1,5 +1,4 @@
 import { deleteImagePerfile, uploadImagePerfile } from "../config.js";
-import { pool } from "../db.js";
 import { AddressModel } from "../models/address.model.js";
 import { ParentModel } from "../models/parent.model.js";
 import { RoleModel } from "../models/role.model.js";
@@ -115,7 +114,6 @@ export const registerStudent = async (req, res) => {
       student_lastnamepaternal,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json(["Hubo un error al registrar el estudiante."]);
   }
 };
@@ -186,7 +184,6 @@ export const registerParent = async (req, res) => {
 
     return res.json(rowsParents);
   } catch (error) {
-    console.log(error);
     res.status(500).json(["Hubo un error al registrar el padre."]);
   }
 };
@@ -233,16 +230,19 @@ export const registerSubject = async (req, res) => {
 
     let studentsRegistered = [];
     if (students) {
-      students?.map(async (student) => {
+      const studentPromises = students.map(async (student) => {
         const rowStudent = await SubjectModel.createSubjectStudent(
           rowSubject.insertId,
           student
         );
 
-        if (rowStudent.affectedRows === 1)
+        if (rowStudent.affectedRows === 1) {
           studentsRegistered.push(rowStudent.insertId);
+        }
       });
 
+      await Promise.all(studentPromises);
+      
       if (studentsRegistered.length !== students?.length) {
         const result = await SubjectModel.deleteSubjectStudent(
           rowSubject.insertId
@@ -411,7 +411,6 @@ export const updateStudent = async (req, res) => {
       student_curp,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json(["Hubo un error al actualizar el estudiante."]);
   }
 };
@@ -443,7 +442,6 @@ export const updateParent = async (req, res) => {
       curp,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json(["Hubo un error al actualizar el padre."]);
   }
 };
@@ -529,7 +527,6 @@ export const updateSubject = async (req, res) => {
       students_total: studentsRegistered.length,
     });
   } catch (error) {
-    console.log(error)
     res.status(500).json(["Hubo un error al actualizar la materia."]);
   }
 };
@@ -574,7 +571,7 @@ export const getTeachers = async (req, res) => {
 
     res.json(teachers);
   } catch (error) {
-    res;
+    res.status(500).json(["Hubo un error al obtener los docentes."]);
   }
 };
 
@@ -658,7 +655,7 @@ export const getSubjectStudents = async (req, res) => {
 
 export const getRoles = async (req, res) => {
   try {
-    const [roles] = await pool.query("SELECT * FROM roles");
+    const roles = await RoleModel.getAll();
 
     res.json(roles);
   } catch (error) {
@@ -668,7 +665,7 @@ export const getRoles = async (req, res) => {
 
 export const getAddresses = async (req, res) => {
   try {
-    const [addresses] = await pool.query("SELECT * FROM addresses");
+    const addresses = await AddressModel.getAll()
 
     res.json(addresses);
   } catch (error) {
@@ -723,7 +720,6 @@ export const deleteParent = async (req, res) => {
 
     res.json(result.affectedRows);
   } catch (error) {
-    console.log(error);
     res.status(500).json(["Hubo un error al eliminar el padre."]);
   }
 };
