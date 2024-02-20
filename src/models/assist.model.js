@@ -3,7 +3,7 @@ import { pool } from "../db.js";
 export class AssistModel {
   static async getAssistsOfStudents(students_id, subject_id) {
     const [assistsStudents] = await pool.query(
-      "SELECT subject_students.student_id, DATE_FORMAT(assists.date, '%Y-%m-%dT%H:%i:%s.000%z') AS date, assists.assist FROM assists LEFT JOIN subject_students ON assists.sub_stud_id = subject_students.id WHERE subject_students.student_id IN (?) AND subject_students.subject_id = ?",
+      "SELECT subject_students.student_id, DATE_FORMAT(assists.date, '%Y-%m-%dT%H:%i:%s.000%z') AS date, assists.assist FROM assists LEFT JOIN subject_students ON assists.sub_stud_id = subject_students.id WHERE subject_students.student_id IN (?) AND subject_students.subject_id = ? ORDER BY assists.date",
       [students_id, subject_id]
     );
 

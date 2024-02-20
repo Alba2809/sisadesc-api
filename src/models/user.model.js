@@ -40,6 +40,38 @@ export class UserModel {
 
     return usersWithDetails;
   }
+  
+  static async getAllTest(id) {
+    const [users] = await pool.query(
+      "SELECT users.*, DATE_FORMAT(users.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(users.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, roles.name AS role_name, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id LEFT JOIN addresses ON users.address_id = addresses.id WHERE users.id != ?",
+      [id]
+    );
+
+    const usersWithDetails = users.map((user) => {
+      return {
+        id: user.id,
+        firstname: user.firstname,
+        lastnamepaternal: user.lastnamepaternal,
+        lastnamematernal: user.lastnamematernal,
+        curp: user.curp,
+        rfc: user.rfc,
+        phonenumber: user.phonenumber,
+        birthdate: user.birthdate,
+        imageperfile: user.imageperfile,
+        address: {
+          postalcode: user.address_cp,
+          street: user.street,
+          settlement: user.address_settlement,
+          type_settlement: user.address_type,
+          town: user.address_town,
+          state: user.address_state,
+          city: user.address_city,
+        },
+      };
+    });
+
+    return usersWithDetails;
+  }
 
   static async getById(id) {
     const [userFound] = await pool.query(
@@ -69,6 +101,41 @@ export class UserModel {
           id: user.role,
           name: user.role_name,
         },
+        address: {
+          id: user.address_id,
+          postalcode: user.address_cp,
+          street: user.street,
+          settlement: user.address_settlement,
+          type_settlement: user.address_type,
+          town: user.address_town,
+          state: user.address_state,
+          city: user.address_city,
+        },
+      };
+    });
+
+    return usersWithDetails[0];
+  }
+
+  static async getByIds(ids) {
+    const [userFound] = await pool.query(
+      "SELECT users.*, DATE_FORMAT(users.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(users.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, roles.name AS role_name, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id LEFT JOIN addresses ON users.address_id = addresses.id WHERE users.id IN (?)",
+      [ids]
+    );
+
+    if (!userFound[0]) return false;
+
+    const usersWithDetails = userFound.map((user) => {
+      return {
+        id: user.id,
+        firstname: user.firstname,
+        lastnamepaternal: user.lastnamepaternal,
+        lastnamematernal: user.lastnamematernal,
+        curp: user.curp,
+        rfc: user.rfc,
+        phonenumber: user.phonenumber,
+        birthdate: user.birthdate,
+        imageperfile: user.imageperfile,
         address: {
           id: user.address_id,
           postalcode: user.address_cp,
