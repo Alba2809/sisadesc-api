@@ -69,6 +69,7 @@ export const verifyToken = async (req, res) => {
     if (!userFound[0]) return res.status(401).json({ message: "Unauthorized" });
 
     return res.json({
+      id: userFound[0].id,
       firstname: userFound[0].firstname,
       role: {
         name: userFound[0].role_name

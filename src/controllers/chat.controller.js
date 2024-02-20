@@ -3,6 +3,7 @@ import { MessageModel } from "../models/message.model.js";
 import { SubjectModel } from "../models/subject.model.js";
 import { TeacherModel } from "../models/teacher.model.js";
 import { UserModel } from "../models/user.model.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const getUsersToChat = async (req, res) => {
   try {
@@ -55,6 +56,11 @@ export const sendMessage = async (req, res) => {
     );
 
     /* Socket IO functionality */
+    const receicerSocketId = getReceiverSocketId(receiver_id);
+    if (receicerSocketId) {
+        /* io.to is used to send a message to a specific user */
+        io.to(receicerSocketId).emit("message", messageCreated);
+    }
 
     return res.json(messageCreated);
   } catch (error) {
