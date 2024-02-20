@@ -27,7 +27,6 @@ export const getUsersToChat = async (req, res) => {
     /* console.log(user.role.name, usersToChat) */
     return res.json(usersToChat);
   } catch (error) {
-    console.log(error);
     res.status(500).json(["Hubo un error al obtener los usuarios."]);
   }
 };
@@ -55,16 +54,21 @@ export const sendMessage = async (req, res) => {
       message
     );
 
+    const sender = await UserModel.getById(sender_id);
+
     /* Socket IO functionality */
     const receicerSocketId = getReceiverSocketId(receiver_id);
     if (receicerSocketId) {
-        /* io.to is used to send a message to a specific user */
-        io.to(receicerSocketId).emit("message", messageCreated);
+      /* io.to is used to send a message to a specific user */
+      io.to(receicerSocketId).emit("message", {
+        newMessage: messageCreated,
+        receiver: receiver_id,
+        sender
+      });
     }
 
     return res.json(messageCreated);
   } catch (error) {
-    console.log(error);
     res.status(500).json(["Hubo un error al enviar el mensaje."]);
   }
 };
@@ -86,7 +90,6 @@ export const getMessages = async (req, res) => {
 
     return res.json(messages);
   } catch (error) {
-    console.log(error);
     res.status(500).json(["Hubo un error al obtener los mensajes."]);
   }
 };

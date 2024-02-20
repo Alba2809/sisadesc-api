@@ -57,7 +57,7 @@ export const registerAssists = async (req, res) => {
     if (existAssists.length > 0)
       return res
         .status(410)
-        .json(["Las asistencias ya fueron registradas anteriormente."]);
+        .json(["Las asistencias de esta ya fueron registradas anteriormente."]);
 
     let studentsRegistered = [];
     const studentPromises = students.map(async (student) => {
