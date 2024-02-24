@@ -17,6 +17,7 @@ export class StudentModel {
         birthdate: value.birthdate,
         gender: value.gender,
         group: value.group,
+        grade: value.grade,
         email: value.email,
         father_curp: value.father_curp,
         mother_curp: value.mother_curp,
@@ -55,6 +56,7 @@ export class StudentModel {
         birthdate: value.birthdate,
         gender: value.gender,
         group: value.group,
+        grade: value.grade,
         email: value.email,
         father_curp: value.father_curp,
         mother_curp: value.mother_curp,
@@ -77,18 +79,26 @@ export class StudentModel {
     return studentsWithDetails[0];
   }
 
-  static async getStudentsById(ids){
+  static async getStudentsById(ids) {
     const [foundStudents] = await pool.query(
       "SELECT * from students WHERE id IN (?)",
       [ids]
     );
 
-    return foundStudents
+    return foundStudents;
   }
 
   static async create(input) {
+    const tutorCurp =
+      input.tutor_curp === "" || !input.tutor_curp
+        ? input.isTutor === "Madre"
+          ? input.mother_curp
+          : input.isTutor === "Padre"
+          ? input.father_curp
+          : null
+        : input.tutor_curp;
     const rows = await pool.query(
-      "INSERT INTO students (firstname, lastnamepaternal, lastnamematernal, curp, gender, birthdate, address_id, street, email, students.group, phonenumber, father_curp, mother_curp, tutor_curp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO students (firstname, lastnamepaternal, lastnamematernal, curp, gender, birthdate, address_id, street, email, students.group, students.grade, phonenumber, father_curp, mother_curp, tutor_curp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         input.student_firstname,
         input.student_lastnamepaternal,
@@ -100,10 +110,11 @@ export class StudentModel {
         input.student_street,
         input.student_email,
         input.student_group,
+        +input.student_grade,
         input.student_phonenumber,
-        input.father_curp === "" ? null: input.father_curp,
-        input.mother_curp === "" ? null: input.mother_curp,
-        input.tutor_curp === "" ? null : input.tutor_curp,
+        input.father_curp === "" ? null : input.father_curp,
+        input.mother_curp === "" ? null : input.mother_curp,
+        tutorCurp,
       ]
     );
 
@@ -112,7 +123,7 @@ export class StudentModel {
 
   static async update(id, input) {
     const [result] = await pool.query(
-      "UPDATE students SET firstname = ?, lastnamepaternal = ?, lastnamematernal = ?, curp = ?, gender = ?, birthdate = ?, address_id = ?, street = ?, email = ?, students.group = ?, phonenumber = ?, father_curp = ?, mother_curp = ?, tutor_curp = ? WHERE id = ?",
+      "UPDATE students SET firstname = ?, lastnamepaternal = ?, lastnamematernal = ?, curp = ?, gender = ?, birthdate = ?, address_id = ?, street = ?, email = ?, students.group = ?, students.grade = ?, phonenumber = ?, father_curp = ?, mother_curp = ?, tutor_curp = ? WHERE id = ?",
       [
         input.student_firstname,
         input.student_lastnamepaternal,
@@ -124,9 +135,10 @@ export class StudentModel {
         input.student_street,
         input.student_email,
         input.student_group,
+        input.student_grade,
         input.student_phonenumber,
-        input.father_curp === "" ? null: input.father_curp,
-        input.mother_curp === "" ? null: input.mother_curp,
+        input.father_curp === "" ? null : input.father_curp,
+        input.mother_curp === "" ? null : input.mother_curp,
         input.tutor_curp === "" ? null : input.tutor_curp,
         id,
       ]

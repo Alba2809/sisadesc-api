@@ -12,7 +12,7 @@ export const createRoles = async () => {
       pool.query("INSERT INTO roles (name) VALUES (?)", ["admin"]),
       pool.query("INSERT INTO roles (name) VALUES (?)", ["teacher"]),
       pool.query("INSERT INTO roles (name) VALUES (?)", ["parent"]),
-      pool.query("INSERT INTO roles (name) VALUES (?)", ["tutor"]),
+      pool.query("INSERT INTO roles (name) VALUES (?)", ["counselor"]),
       pool.query("INSERT INTO roles (name) VALUES (?)", ["secretary"]),
       pool.query("INSERT INTO roles (name) VALUES (?)", ["principal"]),
       pool.query("INSERT INTO roles (name) VALUES (?)", ["viceprincipal"]),
@@ -63,9 +63,9 @@ export const createUsers = async () => {
           "Gutierrez",
           "Peralta",
           "Activo",
-          "tutor1@gmail.com",
-          await bcrypt.hash("tutor1", 10),
-          roles.find((role) => role.name === "tutor").id,
+          "counselor1@gmail.com",
+          await bcrypt.hash("counselor1", 10),
+          roles.find((role) => role.name === "counselor").id,
         ]
       ), /* Tutor */
       pool.query(

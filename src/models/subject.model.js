@@ -4,7 +4,7 @@ import { TeacherModel } from "./teacher.model.js";
 export class SubjectModel {
   static async getAll() {
     const [subjects] = await pool.query(
-      "SELECT subjects.id, subjects.name, subjects.code, subjects.group, subjects.teacher_id, teachers.curp, DATE_FORMAT(subjects.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS createdAt, DATE_FORMAT(subjects.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS updatedAt, COUNT(DISTINCT subject_students.id) AS students_total FROM subjects LEFT JOIN subject_students ON subjects.id = subject_students.subject_id LEFT JOIN teachers ON subjects.teacher_id = teachers.id GROUP BY subjects.id"
+      "SELECT subjects.id, subjects.name, subjects.code, subjects.group, subjects.grade, subjects.status, subjects.teacher_id, teachers.curp, DATE_FORMAT(subjects.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS createdAt, DATE_FORMAT(subjects.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS updatedAt, COUNT(DISTINCT subject_students.id) AS students_total FROM subjects LEFT JOIN subject_students ON subjects.id = subject_students.subject_id LEFT JOIN teachers ON subjects.teacher_id = teachers.id GROUP BY subjects.id"
     );
 
     return subjects;
@@ -98,8 +98,8 @@ export class SubjectModel {
     if(input.teacher) teacher = await TeacherModel.getByCurp(input.teacher)
 
     const [rows] = await pool.query(
-      "INSERT INTO subjects (name, code, subjects.group, teacher_id) VALUES (?, ?, ?, ?)",
-      [input.name, input.code, input.group, teacher?.id || null]
+      "INSERT INTO subjects (name, code, subjects.group, subjects.grade, teacher_id) VALUES (?, ?, ?, ?, ?)",
+      [input.name, input.code, input.group, +input.grade, teacher?.id ?? null]
     );
 
     return rows;
@@ -121,6 +121,15 @@ export class SubjectModel {
     const [result] = await pool.query(
       "UPDATE subjects SET name = ?, code = ?, subjects.group = ?, teacher_id = ? WHERE id = ?",
       [input.name, input.code, input.group, teacher?.id || null, id]
+    );
+
+    return result;
+  }
+
+  static async updateStatus(id, status) {
+    const [result] = await pool.query(
+      "UPDATE subjects SET status = ? WHERE id = ?",
+      ["Finalizado", id]
     );
 
     return result;

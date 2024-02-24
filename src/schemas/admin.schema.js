@@ -262,13 +262,14 @@ export const studentSchema = z.object({
     })
     .max(30, {
       message: "El correo electrónico debe tener un máximo de 30 caracteres.",
-    }),
+    }).optional(),
   student_group: z
     .string({
       required_error: "El grupo es requerida.",
-    })
-    .max(5, {
-      message: "El grupo debe tener un máximo de 5 caracteres.",
+    }),
+  student_grade: z
+    .string({
+      required_error: "El grado es requerido.",
     }),
   student_phonenumber: z
     .string({
@@ -276,7 +277,7 @@ export const studentSchema = z.object({
     })
     .length(10, {
       message: "El teléfono debe tener 10 caracteres.",
-    }),
+    }).optional(),
 });
 
 export const fatherSchema = z.object({
@@ -649,12 +650,14 @@ export const subjectSchema = z.object({
     .max(10, {
       message: "El código debe tener un máximo de 10 caracteres.",
     }),
+  grade: z
+    .string({
+      required_error: "El grado es requerido.",
+    })
+    .optional(),
   group: z
     .string({
       required_error: "El grupo es requerido.",
-    })
-    .max(50, {
-      message: "El grupo debe tener un máximo de 50 caracteres.",
     })
     .optional(),
   students: z

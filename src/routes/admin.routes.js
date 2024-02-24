@@ -27,7 +27,8 @@ import {
   getParent,
   getParents,
   deleteParent,
-  getSubjectStudents
+  getSubjectStudents,
+  updateStatusSubject
 } from "../controllers/admin.controller.js";
 import { authRequired } from "../middlewares/validateToken.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
@@ -158,6 +159,12 @@ router.put(
   validateRol("admin"),
   validateSchema(subjectSchema),
   updateSubject
+);
+router.put(
+  "/updatestatussubject/:id",
+  authRequired,
+  validateRol("admin"),
+  updateStatusSubject
 );
 router.get(
   "/getuser/:id",

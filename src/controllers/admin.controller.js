@@ -210,64 +210,16 @@ export const registerSubject = async (req, res) => {
       }
     }
 
-    /* Existen los estudiantes */
-    if (students) {
-      const foundStudents = await StudentModel.getStudentsById(students);
-
-      if (foundStudents.length < students.length) {
-        return res
-          .status(404)
-          .json([
-            `No se encontraron ${
-              students.length - foundStudents.length
-            } estudiante(s)`,
-          ]);
-      }
-    }
-
     const rowSubject = await SubjectModel.create(req.body);
 
     if (rowSubject.affectedRows !== 1) return;
 
-    let studentsRegistered = [];
-    if (students) {
-      const studentPromises = students.map(async (student) => {
-        const rowStudent = await SubjectModel.createSubjectStudent(
-          rowSubject.insertId,
-          student
-        );
-
-        if (rowStudent.affectedRows === 1) {
-          studentsRegistered.push(rowStudent.insertId);
-        }
-      });
-
-      await Promise.all(studentPromises);
-      
-      if (studentsRegistered.length !== students?.length) {
-        const result = await SubjectModel.deleteSubjectStudent(
-          rowSubject.insertId
-        );
-
-        if (result.affectedRows <= 0)
-          return res
-            .status(404)
-            .json(["No se pudieron eliminar todos lo registros."]);
-
-        return res
-          .status(400)
-          .json([
-            "No se pudieron registrar todos los estudiantes. Intentelo de nuevo.",
-          ]);
-      }
-    }
-
     res.json({
       name,
       subjectid: "ASIG" + rowSubject.insertId,
-      students_total: studentsRegistered.length,
     });
   } catch (error) {
+    console.log(error)
     res.status(500).json(["Hubo un error al registrar la materia."]);
   }
 };
@@ -528,6 +480,23 @@ export const updateSubject = async (req, res) => {
       students_total: studentsRegistered.length,
     });
   } catch (error) {
+    res.status(500).json(["Hubo un error al actualizar la materia."]);
+  }
+};
+
+export const updateStatusSubject = async (req, res) => {
+  const { name, code, students, teacher } = req.body;
+  try {
+    const result = await SubjectModel.updateStatus(req.params.id);
+
+    if (result.affectedRows <= 0)
+      return res.status(404).json(["No se pudo actualizar el estado."]);
+
+    res.json({
+      id: "ASIG" + req.params.id,
+    });
+  } catch (error) {
+    console.log(error)
     res.status(500).json(["Hubo un error al actualizar la materia."]);
   }
 };

@@ -79,7 +79,7 @@ export class ParentModel {
 
     if (input.father_firstname) {
       const rowFather = await pool.query(
-        "INSERT INTO parents (firstname, lastnamepaternal, lastnamematernal, curp, email, rfc, phonenumber, address_id, birthdate, gender, status, street) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO parents (firstname, lastnamepaternal, lastnamematernal, curp, email, rfc, phonenumber, address_id, birthdate, gender, status, street) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           input.father_firstname,
           input.father_lastnamepaternal,
@@ -99,7 +99,7 @@ export class ParentModel {
       if (rowFather[0].affectedRows > 0) allInserts.push(rowFather[0].insertId);
     } else if (input.mother_firstname) {
       const rowMother = await pool.query(
-        "INSERT INTO parents (firstname, lastnamepaternal, lastnamematernal, curp, email, rfc, phonenumber, address_id, birthdate, gender, status, street) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO parents (firstname, lastnamepaternal, lastnamematernal, curp, email, rfc, phonenumber, address_id, birthdate, gender, status, street) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           input.mother_firstname,
           input.mother_lastnamepaternal,
@@ -119,7 +119,7 @@ export class ParentModel {
       if (rowMother[0].affectedRows > 0) allInserts.push(rowMother[0].insertId);
     } else if (input.tutor_firstname) {
       const rowTutor = await pool.query(
-        "INSERT INTO parents (firstname, lastnamepaternal, lastnamematernal, curp, email, rfc, phonenumber, address_id, birthdate, gender, status, street) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO parents (firstname, lastnamepaternal, lastnamematernal, curp, email, rfc, phonenumber, address_id, birthdate, gender, status, street) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           input.tutor_firstname,
           input.tutor_lastnamepaternal,
