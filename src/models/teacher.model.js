@@ -155,7 +155,7 @@ export class TeacherModel {
 
   static async getUsersToChat(subjects_id, user_id) {
     const [parents] = await pool.query(
-      "SELECT DISTINCT users.id FROM subject_students LEFT JOIN students ON subject_students.student_id = students.id JOIN users ON users.curp = students.father_curp OR users.curp = students.mother_curp OR users.curp = students.tutor_curp WHERE subject_students.subject_id IN (?)",
+      "SELECT DISTINCT users.id FROM subject_students LEFT JOIN students ON subject_students.student_id = students.id JOIN users ON users.curp = students.tutor_curp WHERE subject_students.subject_id IN (?)",
       [subjects_id]
     );
 

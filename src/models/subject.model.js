@@ -68,7 +68,7 @@ export class SubjectModel {
 
   static async getSubjectsOfTeacher(teacher_id) {
     const [subjects] = await pool.query(
-      "SELECT * FROM subjects WHERE teacher_id = ?",
+      "SELECT * FROM subjects WHERE teacher_id = ? AND status = 'Activo'",
       [teacher_id]
     );
 
