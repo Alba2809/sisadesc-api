@@ -28,7 +28,8 @@ import {
   getParents,
   deleteParent,
   getSubjectStudents,
-  updateStatusSubject
+  updateStatusSubject,
+  registerOneParent
 } from "../controllers/admin.controller.js";
 import { authRequired } from "../middlewares/validateToken.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
@@ -89,13 +90,13 @@ router.post(
   validateSchema(studentSchema),
   registerStudent
 );
-/* router.post(
+router.post(
   "/registerparent",
   authRequired,
   validateRol("admin"),
-  validateSchema(fatherSchema),
-  registerParent
-); */
+  validateSchema(parentSchema),
+  registerOneParent
+);
 router.post(
   "/registerfather",
   authRequired,

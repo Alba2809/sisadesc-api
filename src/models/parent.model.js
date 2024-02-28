@@ -142,6 +142,28 @@ export class ParentModel {
     return allInserts;
   }
 
+  static async createParent(input){
+    const row = await pool.query(
+      "INSERT INTO parents (firstname, lastnamepaternal, lastnamematernal, curp, email, rfc, phonenumber, address_id, birthdate, gender, status, street) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        input.firstname,
+        input.lastnamepaternal,
+        input.lastnamematernal,
+        input.curp,
+        input.email,
+        input.rfc,
+        input.phonenumber,
+        input.addressid,
+        input.birthdate,
+        input.gender,
+        input.status,
+        input.street,
+      ]
+    );
+
+    return row;
+  }
+
   static async update(id, input) {
     const result = await pool.query(
       "UPDATE parents SET firstname = ?, lastnamepaternal = ?, lastnamematernal = ?, curp = ?, email = ?, rfc = ?, phonenumber = ?, address_id = ?, birthdate = ?, gender = ?, status = ?, street = ? WHERE id = ?",

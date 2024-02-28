@@ -11,7 +11,7 @@ export const registerUser = async (req, res) => {
   const { firstname, role, email } = req.body;
 
   try {
-    console.log(role)
+    console.log(role);
     const roleFound = await RoleModel.getById(role);
 
     if (!roleFound) return res.status(404).json(["Rol no encontrado."]);
@@ -119,6 +119,30 @@ export const registerStudent = async (req, res) => {
   }
 };
 
+export const registerOneParent = async (req, res) => {
+  const { addressid, curp } = req.body;
+
+  try {
+    const addressFoundStudent = await AddressModel.getById(addressid);
+
+    if (!addressFoundStudent)
+      return res.status(404).json(["Dirección no encontrada."]);
+
+    const parentFound = await ParentModel.curpExist(curp);
+    if (parentFound)
+      return res.status(404).json(["Ya existe un padre con ese CURP."]);
+
+    const result = await ParentModel.createParent(req.body);
+
+    res.json({
+      parentid: "PRT" + result.insertId,
+      firstname: req.body.firstname,
+    });
+  } catch (error) {
+    res.status(500).json(["Hubo un error al registrar el padre."]);
+  }
+};
+
 export const registerParent = async (req, res) => {
   const {
     father_addressid,
@@ -219,7 +243,6 @@ export const registerSubject = async (req, res) => {
       subjectid: "ASIG" + rowSubject.insertId,
     });
   } catch (error) {
-    console.log(error)
     res.status(500).json(["Hubo un error al registrar la materia."]);
   }
 };
@@ -250,10 +273,10 @@ export const updateUser = async (req, res) => {
       return res.status(404).json(["Dirección no encontrada."]);
 
     /*  */
+    const userFound = await UserModel.getById(req.params.id);
     if (req.file) {
-      const userFound = await UserModel.getById(req.params.id);
-      if (userFound.imageperfile && userFound[0].imageperfile !== "") {
-        deleteImagePerfile(userFound[0].imageperfile);
+      if (userFound.imageperfile && userFound.imageperfile !== "") {
+        deleteImagePerfile(userFound.imageperfile);
       }
 
       uploadedImage = await uploadImagePerfile(newImage);
@@ -263,6 +286,8 @@ export const updateUser = async (req, res) => {
           .json([
             "Hubo un problema al actualizar la imagen de perfil. Intente de nuevo.",
           ]);
+    } else {
+      uploadedImage = userFound.imageperfile;
     }
 
     const result = await UserModel.update(
@@ -445,27 +470,28 @@ export const updateSubject = async (req, res) => {
 
     /* Se registran los estudiantes */
     let studentsRegistered = [];
-    if(students){
+    if (students) {
       const studentPromises = students?.map(async (student) => {
         const rowStudent = await SubjectModel.createSubjectStudent(
           req.params.id,
           student
         );
-      
-        if (rowStudent.affectedRows > 0) studentsRegistered.push(rowStudent.insertId);
+
+        if (rowStudent.affectedRows > 0)
+          studentsRegistered.push(rowStudent.insertId);
       });
-      
+
       await Promise.all(studentPromises);
-  
+
       /* En caso de falla, se eliminan los registrados */
       if (studentsRegistered.length !== students?.length) {
         const result = await SubjectModel.deleteSubjectStudent(req.params.id);
-  
+
         if (result.affectedRows <= 0)
           return res
             .status(404)
             .json(["No se pudieron eliminar todos lo registros."]);
-  
+
         return res
           .status(400)
           .json([
@@ -496,7 +522,6 @@ export const updateStatusSubject = async (req, res) => {
       id: "ASIG" + req.params.id,
     });
   } catch (error) {
-    console.log(error)
     res.status(500).json(["Hubo un error al actualizar la materia."]);
   }
 };
@@ -635,7 +660,7 @@ export const getRoles = async (req, res) => {
 
 export const getAddresses = async (req, res) => {
   try {
-    const addresses = await AddressModel.getAll()
+    const addresses = await AddressModel.getAll();
 
     res.json(addresses);
   } catch (error) {
