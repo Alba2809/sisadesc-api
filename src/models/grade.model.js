@@ -21,7 +21,7 @@ export class GradeModel {
 
   static async existGrades(subject_id, evaluation_number) {
     const [grades] = await pool.query(
-      "SELECT * FROM grades JOIN subject_students ON grades.sub_stud_id = subject_students.id WHERE subject_students.subject_id = ? AND grades.evaluation_number = ?",
+      "SELECT grades.id, grades.sub_stud_id, grades.grade, grades.assist_total, grades.evaluation_number, grades.createdAt FROM grades LEFT JOIN subject_students ON grades.sub_stud_id = subject_students.id WHERE subject_students.subject_id = ? AND grades.evaluation_number = ?",
       [subject_id, evaluation_number]
     );
 

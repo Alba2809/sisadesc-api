@@ -10,6 +10,14 @@ export class SubjectModel {
     return subjects;
   }
 
+  static async getSubjects() {
+    const [subjects] = await pool.query(
+      "SELECT * FROM subjects WHERE status = 'Activo'",
+    );
+
+    return subjects;
+  }
+
   static async getById(id) {
     const [foundSubject] = await pool.query(
       "SELECT subjects.id, subjects.name, subjects.code, subjects.group, subjects.teacher_id, teachers.curp AS teacher_curp, DATE_FORMAT(subjects.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS createdAt, DATE_FORMAT(subjects.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS updatedAt FROM subjects LEFT JOIN teachers ON subjects.teacher_id = teachers.id WHERE subjects.id = ?",

@@ -5,6 +5,7 @@ import { validateDocument } from "./middlewares/document.middleware.js";
 import { authRequired } from "./middlewares/validateToken.js";
 import { createRoles, createUsers } from "./libs/initialSetup.js";
 import { FRONTEND_URL } from "./config.js";
+import { app, server } from "./socket/socket.js";
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
@@ -13,7 +14,8 @@ import authRoutes from "./routes/auth.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import teacherRoutes from "./routes/teacher.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
-import { app, server } from "./socket/socket.js";
+import secretaryRoutes from "./routes/secretary.routes.js";
+import generalRoutes from "./routes/general.routes.js";
 
 createRoles();
 createUsers();
@@ -42,8 +44,10 @@ app.use(
 );
  */
 app.use("/api", authRoutes);
+app.use("/api/chat", chatRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/teacher", teacherRoutes);
-app.use("/api/chat", chatRoutes);
+app.use("/api/secretary", secretaryRoutes);
+app.use("/api/", generalRoutes);
 
 export { app, server };
