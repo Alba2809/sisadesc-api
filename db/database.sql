@@ -10787,36 +10787,35 @@ CREATE TABLE IF NOT EXISTS `grades` (
   `assist_total` int(11) DEFAULT 0,
   `evaluation_number` int(11) NOT NULL,
   `createdAt` timestamp NULL DEFAULT current_timestamp(),
-  `updatedAt` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `FK__grades_subject_students` (`sub_stud_id`),
   CONSTRAINT `FK__grades_subject_students` FOREIGN KEY (`sub_stud_id`) REFERENCES `subject_students` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Volcando datos para la tabla bd_sisadesc.grades: ~21 rows (aproximadamente)
 DELETE FROM `grades`;
-INSERT INTO `grades` (`id`, `sub_stud_id`, `grade`, `assist_total`, `evaluation_number`, `createdAt`, `updatedAt`) VALUES
-	(1, 47, 8, 10, 1, '2024-02-19 22:04:25', '2024-02-26 21:03:03'),
-	(2, 49, 7, 12, 1, '2024-02-19 22:04:25', '2024-02-26 21:03:05'),
-	(3, 48, 8, 11, 1, '2024-02-19 22:04:25', '2024-02-26 21:03:06'),
-	(4, 50, 8, 10, 1, '2024-02-19 22:04:25', '2024-02-26 21:03:08'),
-	(5, 51, 10, 10, 1, '2024-02-19 22:04:25', '2024-02-26 21:03:09'),
-	(6, 47, 8, 13, 2, '2024-02-19 22:05:25', '2024-02-26 21:03:12'),
-	(7, 48, 8, 13, 2, '2024-02-19 22:05:25', '2024-02-26 21:03:14'),
-	(8, 49, 7, 13, 2, '2024-02-19 22:05:25', '2024-02-26 21:03:15'),
-	(9, 50, 8, 13, 2, '2024-02-19 22:05:25', '2024-02-26 21:03:16'),
-	(10, 51, 10, 13, 2, '2024-02-19 22:05:25', '2024-02-26 21:03:17'),
-	(11, 47, 9, 13, 3, '2024-02-19 22:06:24', '2024-02-26 21:03:18'),
-	(12, 48, 9, 13, 3, '2024-02-19 22:06:24', '2024-02-26 21:03:18'),
-	(13, 49, 9, 13, 3, '2024-02-19 22:06:24', '2024-02-26 21:03:19'),
-	(14, 50, 9, 13, 3, '2024-02-19 22:06:24', '2024-02-26 21:03:20'),
-	(15, 51, 9, 13, 3, '2024-02-19 22:06:24', '2024-02-26 21:03:21'),
-	(31, 54, 10, 20, 1, '2024-02-26 23:50:19', '2024-02-26 23:50:19'),
-	(32, 55, 8, 20, 1, '2024-02-26 23:50:19', '2024-02-26 23:50:19'),
-	(33, 56, 9, 19, 1, '2024-02-26 23:50:19', '2024-02-26 23:50:19'),
-	(34, 54, 7, 12, 2, '2024-02-27 00:22:47', '2024-02-27 00:22:47'),
-	(35, 56, 9.3, 19, 2, '2024-02-27 00:22:47', '2024-02-27 00:22:47'),
-	(36, 55, 8.5, 15, 2, '2024-02-27 00:22:47', '2024-02-27 00:22:47');
+INSERT INTO `grades` (`id`, `sub_stud_id`, `grade`, `assist_total`, `evaluation_number`, `createdAt`) VALUES
+	(6, 47, 8, 13, 2, '2024-02-19 22:05:25'),
+	(7, 48, 8, 13, 2, '2024-02-19 22:05:25'),
+	(8, 49, 7, 13, 2, '2024-02-19 22:05:25'),
+	(9, 50, 8, 13, 2, '2024-02-19 22:05:25'),
+	(10, 51, 10, 13, 2, '2024-02-19 22:05:25'),
+	(31, 54, 10, 20, 1, '2024-02-26 23:50:19'),
+	(32, 55, 8, 20, 1, '2024-02-26 23:50:19'),
+	(33, 56, 9, 19, 1, '2024-02-26 23:50:19'),
+	(34, 54, 7, 12, 2, '2024-02-27 00:22:47'),
+	(35, 56, 9.3, 19, 2, '2024-02-27 00:22:47'),
+	(36, 55, 8.5, 15, 2, '2024-02-27 00:22:47'),
+	(47, 47, 9, 13, 3, '2024-02-27 22:01:45'),
+	(48, 48, 8.5, 15, 3, '2024-02-27 22:01:45'),
+	(49, 49, 9, 13, 3, '2024-02-27 22:01:45'),
+	(50, 51, 9, 13, 3, '2024-02-27 22:01:45'),
+	(51, 50, 9.6, 13, 3, '2024-02-27 22:01:45'),
+	(52, 47, 8, 15, 1, '2024-02-27 22:19:25'),
+	(53, 48, 8, 11, 1, '2024-02-27 22:19:25'),
+	(54, 49, 7, 12, 1, '2024-02-27 22:19:25'),
+	(55, 50, 8, 10, 1, '2024-02-27 22:19:25'),
+	(56, 51, 10, 10, 1, '2024-02-27 22:19:25');
 
 -- Volcando estructura para tabla bd_sisadesc.messages
 DROP TABLE IF EXISTS `messages`;
@@ -10835,7 +10834,7 @@ CREATE TABLE IF NOT EXISTS `messages` (
   CONSTRAINT `FK_messages_conversations` FOREIGN KEY (`conversation_id`) REFERENCES `conversations` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `FK_recievers_users` FOREIGN KEY (`receiver_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `FK_senders_users` FOREIGN KEY (`sender_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Volcando datos para la tabla bd_sisadesc.messages: ~34 rows (aproximadamente)
 DELETE FROM `messages`;
@@ -10875,7 +10874,8 @@ INSERT INTO `messages` (`id`, `conversation_id`, `sender_id`, `receiver_id`, `me
 	(34, 4, 22, 21, 'prueba 2', 'sent', '2024-02-20 20:33:12'),
 	(35, 4, 21, 22, 'prueba buena', 'sent', '2024-02-20 20:33:27'),
 	(36, 4, 21, 22, 'asdasdasdsad', 'sent', '2024-02-20 20:49:45'),
-	(37, 4, 22, 21, 'asdkasndkoasndk', 'sent', '2024-02-20 20:49:58');
+	(37, 4, 22, 21, 'asdkasndkoasndk', 'sent', '2024-02-20 20:49:58'),
+	(38, 4, 21, 22, 'ja', 'sent', '2024-02-28 01:31:07');
 
 -- Volcando estructura para tabla bd_sisadesc.parents
 DROP TABLE IF EXISTS `parents`;
@@ -10915,6 +10915,28 @@ INSERT INTO `parents` (`id`, `firstname`, `lastnamepaternal`, `lastnamematernal`
 	(39, 'José Iván', 'Alba', 'García', 'PPPP020202HCHACH48', NULL, NULL, NULL, 1183, 'Cuauhtemoc 4', '2000-10-10', 'Hombre', 'Vivo', '2024-02-24 21:19:40', '2024-02-24 21:19:40'),
 	(40, 'José Iván', 'Alba', 'García', 'MAAG010101HHAKJA00', NULL, NULL, NULL, 1182, 'Cuauhtemoc 4', '2000-12-15', 'Mujer', 'Vivo', '2024-02-24 21:19:40', '2024-02-24 21:19:40'),
 	(41, 'José Iván', 'Alba', 'García', 'PPPP020202HCHACH49', NULL, NULL, NULL, 1184, 'Cuauhtemoc 4', '2000-10-10', 'Hombre', 'Desconocido', '2024-02-24 21:22:07', '2024-02-24 21:22:07');
+
+-- Volcando estructura para tabla bd_sisadesc.posts
+DROP TABLE IF EXISTS `posts`;
+CREATE TABLE IF NOT EXISTS `posts` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(200) NOT NULL,
+  `description` text NOT NULL,
+  `createdAt` timestamp NULL DEFAULT current_timestamp(),
+  `updatedAt` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Volcando datos para la tabla bd_sisadesc.posts: ~6 rows (aproximadamente)
+DELETE FROM `posts`;
+INSERT INTO `posts` (`id`, `title`, `description`, `createdAt`, `updatedAt`) VALUES
+	(1, 'Titutlo de prueba', 'Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer avisoDescripción de prueba para el primer aviso Descripción de prueba para el primer avisoDescripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer avisoDescripción de prueba para el primer aviso Descripción de prueba para el primer aviso', '2024-02-26 22:37:52', '2024-02-28 00:30:40'),
+	(2, 'Titutlo de prueba 2', 'Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer avisoDescripción de prueba para el primer aviso Descripción de prueba para el primer avisoDescripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer avisoDescripción de prueba para el primer aviso Descripción de prueba para el primer aviso', '2024-02-26 22:37:52', '2024-02-28 00:30:42'),
+	(3, 'Titutlo de prueba 33', 'Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer avisoDescripción de prueba para el primer aviso Descripción de prueba para el primer avisoDescripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer avisoDescripción de prueba para el primer aviso Descripción de prueba para el primer aviso', '2024-02-26 22:37:52', '2024-02-28 00:30:44'),
+	(6, 'Segunda prueba', 'no se que poner', '2024-02-27 00:30:09', '2024-02-28 00:30:50'),
+	(8, 'Tercera prueba de aviso', 'Prueba para verificar que lo coloca al principio', '2024-02-28 00:33:01', '2024-02-28 00:33:01'),
+	(12, 'Prueba de aviso', 'lkasdlknd aksldnkalsnd aksdnk', '2024-02-28 01:25:35', '2024-02-28 01:25:35'),
+	(13, 'Prueba de ventana', 'sdas dasd asdasdasd asdas', '2024-02-28 01:25:59', '2024-02-28 01:25:59');
 
 -- Volcando estructura para tabla bd_sisadesc.roles
 DROP TABLE IF EXISTS `roles`;
@@ -11005,7 +11027,7 @@ CREATE TABLE IF NOT EXISTS `subjects` (
 -- Volcando datos para la tabla bd_sisadesc.subjects: ~4 rows (aproximadamente)
 DELETE FROM `subjects`;
 INSERT INTO `subjects` (`id`, `name`, `code`, `group`, `grade`, `teacher_id`, `status`, `createdAt`, `updatedAt`) VALUES
-	(9, 'Matemáticas', 'MAT01', 'B', 2, 2, 'Activo', '2024-02-18 21:13:14', '2024-02-26 19:50:20'),
+	(9, 'Matemáticas', 'MAT01', 'B', 2, 2, 'Activo', '2024-02-18 21:13:14', '2024-02-28 01:17:20'),
 	(10, 'Español I', 'ESP01', 'A', 1, 2, 'Activo', '2024-02-19 23:22:07', '2024-02-26 19:52:41'),
 	(11, 'Geografía', 'GEO05', 'A', 2, 3, 'Activo', '2024-02-24 21:41:47', '2024-02-24 21:57:19'),
 	(12, 'Ingles', 'ING02', 'F', 2, 2, 'Activo', '2024-02-26 21:11:16', '2024-02-26 21:11:16');
