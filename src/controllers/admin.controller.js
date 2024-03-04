@@ -80,10 +80,10 @@ export const registerStudent = async (req, res) => {
 
     /* Validar que se hayan ingresado al menos un padre */
     if (
-      (father_curp === "" && mother_curp === "") ||
-      (!father_curp && !mother_curp)
+      (father_curp === "" && mother_curp === "" && tutor_curp === "") ||
+      (!father_curp && !mother_curp && !tutor_curp)
     ) {
-      return res.status(404).json(["Debe registrar al menos un padre."]);
+      return res.status(404).json(["Debe registrar al menos un padre/tutor."]);
     }
 
     /* Validar curps de padres (cuando los padres ya existentes y no se requiere registrar nuevos) */

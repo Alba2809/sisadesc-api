@@ -98,6 +98,7 @@ export const registerGrades = async (req, res) => {
       grades_registered: studentsRegistered,
     });
   } catch (error) {
+    console.log(error)
     res.status(500).json(["Hubo un error al registrar las calificaciones."]);
   }
 };

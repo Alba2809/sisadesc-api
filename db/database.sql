@@ -10785,37 +10785,41 @@ CREATE TABLE IF NOT EXISTS `grades` (
   `sub_stud_id` int(11) NOT NULL,
   `grade` float NOT NULL DEFAULT 0,
   `assist_total` int(11) DEFAULT 0,
+  `noAssist_total` int(11) DEFAULT 0,
   `evaluation_number` int(11) NOT NULL,
   `createdAt` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `FK__grades_subject_students` (`sub_stud_id`),
   CONSTRAINT `FK__grades_subject_students` FOREIGN KEY (`sub_stud_id`) REFERENCES `subject_students` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Volcando datos para la tabla bd_sisadesc.grades: ~21 rows (aproximadamente)
+-- Volcando datos para la tabla bd_sisadesc.grades: ~24 rows (aproximadamente)
 DELETE FROM `grades`;
-INSERT INTO `grades` (`id`, `sub_stud_id`, `grade`, `assist_total`, `evaluation_number`, `createdAt`) VALUES
-	(6, 47, 8, 13, 2, '2024-02-19 22:05:25'),
-	(7, 48, 8, 13, 2, '2024-02-19 22:05:25'),
-	(8, 49, 7, 13, 2, '2024-02-19 22:05:25'),
-	(9, 50, 8, 13, 2, '2024-02-19 22:05:25'),
-	(10, 51, 10, 13, 2, '2024-02-19 22:05:25'),
-	(31, 54, 10, 20, 1, '2024-02-26 23:50:19'),
-	(32, 55, 8, 20, 1, '2024-02-26 23:50:19'),
-	(33, 56, 9, 19, 1, '2024-02-26 23:50:19'),
-	(34, 54, 7, 12, 2, '2024-02-27 00:22:47'),
-	(35, 56, 9.3, 19, 2, '2024-02-27 00:22:47'),
-	(36, 55, 8.5, 15, 2, '2024-02-27 00:22:47'),
-	(47, 47, 9, 13, 3, '2024-02-27 22:01:45'),
-	(48, 48, 8.5, 15, 3, '2024-02-27 22:01:45'),
-	(49, 49, 9, 13, 3, '2024-02-27 22:01:45'),
-	(50, 51, 9, 13, 3, '2024-02-27 22:01:45'),
-	(51, 50, 9.6, 13, 3, '2024-02-27 22:01:45'),
-	(52, 47, 8, 15, 1, '2024-02-27 22:19:25'),
-	(53, 48, 8, 11, 1, '2024-02-27 22:19:25'),
-	(54, 49, 7, 12, 1, '2024-02-27 22:19:25'),
-	(55, 50, 8, 10, 1, '2024-02-27 22:19:25'),
-	(56, 51, 10, 10, 1, '2024-02-27 22:19:25');
+INSERT INTO `grades` (`id`, `sub_stud_id`, `grade`, `assist_total`, `noAssist_total`, `evaluation_number`, `createdAt`) VALUES
+	(6, 47, 8, 13, 0, 2, '2024-02-19 22:05:25'),
+	(7, 48, 8, 13, 0, 2, '2024-02-19 22:05:25'),
+	(8, 49, 7, 13, 0, 2, '2024-02-19 22:05:25'),
+	(9, 50, 8, 13, 0, 2, '2024-02-19 22:05:25'),
+	(10, 51, 10, 13, 0, 2, '2024-02-19 22:05:25'),
+	(31, 54, 10, 20, 0, 1, '2024-02-26 23:50:19'),
+	(32, 55, 8, 20, 0, 1, '2024-02-26 23:50:19'),
+	(33, 56, 9, 19, 1, 1, '2024-02-26 23:50:19'),
+	(34, 54, 7, 12, 8, 2, '2024-02-27 00:22:47'),
+	(35, 56, 9.3, 19, 1, 2, '2024-02-27 00:22:47'),
+	(36, 55, 8.5, 15, 0, 2, '2024-02-27 00:22:47'),
+	(52, 47, 8, 15, 0, 1, '2024-02-27 22:19:25'),
+	(53, 48, 8, 11, 2, 1, '2024-02-27 22:19:25'),
+	(54, 49, 7, 12, 0, 1, '2024-02-27 22:19:25'),
+	(55, 50, 8, 10, 0, 1, '2024-02-27 22:19:25'),
+	(56, 51, 10, 10, 3, 1, '2024-02-27 22:19:25'),
+	(57, 54, 10, 20, 0, 3, '2024-03-04 02:00:39'),
+	(58, 55, 8, 20, 0, 3, '2024-03-04 02:00:39'),
+	(59, 56, 9, 19, 1, 3, '2024-03-04 02:00:39'),
+	(60, 47, 9, 13, 1, 3, '2024-03-04 02:04:29'),
+	(61, 48, 8.5, 15, 1, 3, '2024-03-04 02:04:29'),
+	(62, 49, 9, 13, 1, 3, '2024-03-04 02:04:29'),
+	(63, 50, 9.6, 13, 1, 3, '2024-03-04 02:04:29'),
+	(64, 51, 9, 13, 1, 3, '2024-03-04 02:04:29');
 
 -- Volcando estructura para tabla bd_sisadesc.messages
 DROP TABLE IF EXISTS `messages`;
@@ -10900,7 +10904,7 @@ CREATE TABLE IF NOT EXISTS `parents` (
   UNIQUE KEY `email` (`email`),
   KEY `FK_parents_addresses` (`address_id`),
   CONSTRAINT `FK_parents_addresses` FOREIGN KEY (`address_id`) REFERENCES `addresses` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Volcando datos para la tabla bd_sisadesc.parents: ~9 rows (aproximadamente)
 DELETE FROM `parents`;
@@ -10914,7 +10918,9 @@ INSERT INTO `parents` (`id`, `firstname`, `lastnamepaternal`, `lastnamematernal`
 	(34, 'Padre100', 'Alba', 'García', 'PPPP020202HCHACH50', NULL, NULL, NULL, 1184, 'Cuauhtemoc 4', '2000-10-10', 'Hombre', 'Vivo', '2024-02-14 23:02:33', '2024-02-14 23:02:33'),
 	(39, 'José Iván', 'Alba', 'García', 'PPPP020202HCHACH48', NULL, NULL, NULL, 1183, 'Cuauhtemoc 4', '2000-10-10', 'Hombre', 'Vivo', '2024-02-24 21:19:40', '2024-02-24 21:19:40'),
 	(40, 'José Iván', 'Alba', 'García', 'MAAG010101HHAKJA00', NULL, NULL, NULL, 1182, 'Cuauhtemoc 4', '2000-12-15', 'Mujer', 'Vivo', '2024-02-24 21:19:40', '2024-02-24 21:19:40'),
-	(41, 'José Iván', 'Alba', 'García', 'PPPP020202HCHACH49', NULL, NULL, NULL, 1184, 'Cuauhtemoc 4', '2000-10-10', 'Hombre', 'Desconocido', '2024-02-24 21:22:07', '2024-02-24 21:22:07');
+	(41, 'José Iván', 'Alba', 'García', 'PPPP020202HCHACH49', NULL, NULL, NULL, 1184, 'Cuauhtemoc 4', '2000-10-10', 'Hombre', 'Desconocido', '2024-02-24 21:22:07', '2024-02-24 21:22:07'),
+	(42, 'Padre pruebta', 'Nose', 'Queponer', 'PANQ020202HAHAAHA1', NULL, NULL, NULL, 1184, 'Cuauhtemoc 4', '2024-02-07', 'Hombre', 'Vivo', '2024-02-28 22:11:32', '2024-02-28 22:11:32'),
+	(43, 'Tutor1', 'ApellidoA', 'ApellidoB', 'TAPB010185MVZLRV22', NULL, NULL, NULL, 1183, 'Cuauhtemoc 4', '1985-01-01', 'Hombre', 'Vivo', '2024-03-04 02:11:45', '2024-03-04 02:11:45');
 
 -- Volcando estructura para tabla bd_sisadesc.posts
 DROP TABLE IF EXISTS `posts`;
@@ -10927,7 +10933,7 @@ CREATE TABLE IF NOT EXISTS `posts` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Volcando datos para la tabla bd_sisadesc.posts: ~6 rows (aproximadamente)
+-- Volcando datos para la tabla bd_sisadesc.posts: ~7 rows (aproximadamente)
 DELETE FROM `posts`;
 INSERT INTO `posts` (`id`, `title`, `description`, `createdAt`, `updatedAt`) VALUES
 	(1, 'Titutlo de prueba', 'Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer avisoDescripción de prueba para el primer aviso Descripción de prueba para el primer avisoDescripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer aviso Descripción de prueba para el primer avisoDescripción de prueba para el primer aviso Descripción de prueba para el primer aviso', '2024-02-26 22:37:52', '2024-02-28 00:30:40'),
@@ -10992,7 +10998,7 @@ CREATE TABLE IF NOT EXISTS `students` (
   CONSTRAINT `FK_students_parents` FOREIGN KEY (`father_curp`) REFERENCES `parents` (`curp`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `FK_students_parents_2` FOREIGN KEY (`mother_curp`) REFERENCES `parents` (`curp`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `FK_students_parents_3` FOREIGN KEY (`tutor_curp`) REFERENCES `parents` (`curp`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Volcando datos para la tabla bd_sisadesc.students: ~8 rows (aproximadamente)
 DELETE FROM `students`;
@@ -11004,7 +11010,8 @@ INSERT INTO `students` (`id`, `firstname`, `lastnamepaternal`, `lastnamematernal
 	(9, 'Leonardo Antonio', 'Silva', 'Ortega', 'LASO000101HCHCAHC1', 'Hombre', '2000-01-01', 1184, 'Cuauhtemoc 4', 'test1@gmail.com', 'K', 2, '2281555659', 'HIAH850112HVZRLV12', NULL, NULL, '2024-02-14 20:17:11', '2024-02-24 22:35:03'),
 	(11, 'Camila Estefanía', 'Mendoza', 'Peralda', 'CEMP001010HCHCAHC1', 'Mujer', '2000-10-10', 1185, 'Cuauhtemoc 4', 'test1@gmail.com', 'H', 2, '2281555656', 'PPPP020202HCHACH10', 'MAAG010101HHAKJD10', NULL, '2024-02-14 21:51:22', '2024-02-24 22:34:58'),
 	(13, 'José Iván', 'Alba', 'García', 'AAGA020202ASDASD18', 'Hombre', '2000-12-15', 1184, 'Cuauhtemoc 4', NULL, 'A', 1, NULL, 'PPPP020202HCHACH48', 'MAAG010101HHAKJA00', 'MAAG010101HHAKJA00', '2024-02-24 21:19:40', '2024-02-24 21:19:40'),
-	(14, 'José Iván', 'Alba', 'García', 'AAGA020202ASDASD16', 'Hombre', '2000-10-10', 1184, 'Cuauhtemoc 4', NULL, 'A', 1, NULL, 'PPPP020202HCHACH49', NULL, 'PPPP020202HCHACH49', '2024-02-24 21:22:07', '2024-02-24 21:22:07');
+	(14, 'José Iván', 'Alba', 'García', 'AAGA020202ASDASD16', 'Hombre', '2000-10-10', 1184, 'Cuauhtemoc 4', NULL, 'A', 1, NULL, 'PPPP020202HCHACH49', NULL, 'PPPP020202HCHACH49', '2024-02-24 21:22:07', '2024-02-24 21:22:07'),
+	(15, 'Aldo', 'Gutierrez', 'Perez', 'AGPP010200HVZLRVA2', 'Hombre', '2000-02-28', 1183, 'Cuauhtemoc 4', NULL, 'K', 1, NULL, NULL, NULL, 'TAPB010185MVZLRV22', '2024-03-04 02:11:45', '2024-03-04 02:11:45');
 
 -- Volcando estructura para tabla bd_sisadesc.subjects
 DROP TABLE IF EXISTS `subjects`;
@@ -11024,7 +11031,7 @@ CREATE TABLE IF NOT EXISTS `subjects` (
   CONSTRAINT `FK_subjects_teachers` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Volcando datos para la tabla bd_sisadesc.subjects: ~4 rows (aproximadamente)
+-- Volcando datos para la tabla bd_sisadesc.subjects: ~3 rows (aproximadamente)
 DELETE FROM `subjects`;
 INSERT INTO `subjects` (`id`, `name`, `code`, `group`, `grade`, `teacher_id`, `status`, `createdAt`, `updatedAt`) VALUES
 	(9, 'Matemáticas', 'MAT01', 'B', 2, 2, 'Activo', '2024-02-18 21:13:14', '2024-02-28 01:17:20'),
@@ -11122,8 +11129,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Volcando datos para la tabla bd_sisadesc.users: ~8 rows (aproximadamente)
 DELETE FROM `users`;
 INSERT INTO `users` (`id`, `firstname`, `lastnamepaternal`, `lastnamematernal`, `curp`, `rfc`, `address_id`, `street`, `phonenumber`, `birthdate`, `status`, `imageperfile`, `email`, `password`, `role`, `createdAt`, `updatedAt`) VALUES
-	(21, 'José Iván', 'Alba', 'García', 'AAGI010928HVZLRVA2', 'MASO750902SA7', 1184, 'Cuauhtemoc 5', '2282777241', '2024-02-01', 'Activo', 'https://firebasestorage.googleapis.com/v0/b/sisadesc-ca669.appspot.com/o/avatar%2F4617ac6a-3a1f-46d7-a6b2-f4dcadfcf4ce.jpg?alt=media&token=d047055b-89ca-4e24-901a-202c35931cab', 'administrador@gmail.com', '$2a$10$JV.KwW4qwXEPTfLE2CzKa.KqvXNFWsOAAVqthX3tSsQTrINw4wdbW', 1, '2024-02-11 21:23:13', '2024-02-16 22:51:38'),
-	(22, 'Sebastian', 'Tepleta', 'Juarez', 'STEJ991028HVZLRV01', NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, 'teacher1@gmail.com', '$2a$10$q88y7zPuqWZd0XQ5p.y9H.BlhH7g5SljPRpxgpXhr2GWNkIBfOokG', 2, '2024-02-12 21:23:13', '2024-02-18 21:04:32'),
+	(21, 'José Iván', 'Alba', 'García', 'AAGI010928HVZLRVA2', 'MASO750902SA8', 1184, 'Cuauhtemoc 5', '2282777245', '2024-02-01', 'Activo', 'https://firebasestorage.googleapis.com/v0/b/sisadesc-ca669.appspot.com/o/avatar%2F4617ac6a-3a1f-46d7-a6b2-f4dcadfcf4ce.jpg?alt=media&token=d047055b-89ca-4e24-901a-202c35931cab', 'administrador@gmail.com', '$2a$10$JV.KwW4qwXEPTfLE2CzKa.KqvXNFWsOAAVqthX3tSsQTrINw4wdbW', 1, '2024-02-11 21:23:13', '2024-02-28 21:38:37'),
+	(22, 'Sebastian', 'Tepleta', 'Juarez', 'STEJ991028HVZLRV01', NULL, NULL, NULL, NULL, NULL, 'Activo', '', 'teacher1@gmail.com', '$2a$10$q88y7zPuqWZd0XQ5p.y9H.BlhH7g5SljPRpxgpXhr2GWNkIBfOokG', 2, '2024-02-12 21:23:13', '2024-02-28 21:34:39'),
 	(23, 'Juan', 'Gutierrez', 'Peralta', NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, 'tutor1@gmail.com', '$2a$10$QbHnmYtnUyoxgvdRpD6KUuOa/SEnsEQBc8keNLXtVANyNo3gBSTaG', 4, '2024-02-12 21:23:13', '2024-02-12 21:23:13'),
 	(24, 'Marta', 'Sanchez', 'Sanchez', NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, 'secretary1@gmail.com', '$2a$10$Orhs.G9/YdIs9mA/qh4aheyBAUZGwBHKuhvHe8kVFI5gEuVES.HTi', 5, '2024-02-12 21:23:14', '2024-02-12 21:23:14'),
 	(25, 'Axel', 'Herrrera', 'Alba', NULL, NULL, NULL, NULL, NULL, NULL, 'Activo', NULL, 'principal1@gmail.com', '$2a$10$tRM9hZo8qfxK6e4sw1f6XOxc6MqoVZzST7drZOFybmX6Zsh.9437K', 6, '2024-02-12 21:23:14', '2024-02-12 21:23:14'),
