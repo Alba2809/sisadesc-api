@@ -28,23 +28,23 @@ router.post(
 router.put(
   "/updatesubject/:id",
   authRequired,
-  validateRol("admin"),
+  validateRol(["admin", "viceprincipal"]),
   validateSchema(subjectSchema),
   updateSubject
 );
 router.put(
   "/updatestatussubject/:id",
   authRequired,
-  validateRol("admin"),
+  validateRol(["admin", "viceprincipal"]),
   updateStatusSubject
 );
-router.get("/getsubject/:id", authRequired, validateRol(["admin", "secretary"]), getSubject);
-router.get("/getsubjects", authRequired, validateRol(["admin", "secretary"]), getSubjects);
+router.get("/getsubject/:id", authRequired, validateRol(["admin", "secretary", "viceprincipal"]), getSubject);
+router.get("/getsubjects", authRequired, validateRol(["admin", "secretary", "viceprincipal", "principal"]), getSubjects);
 router.get("/getsubjectsOfTeacher", authRequired, validateRol("teacher"), getSubjectsOfTeacher);
 router.get(
   "/getsubjectstudents/:id",
   authRequired,
-  validateRol(["admin", "secretary", "teacher"]),
+  validateRol(["admin", "secretary", "teacher", "viceprincipal", "principal"]),
   getSubjectStudents
 );
 router.delete(

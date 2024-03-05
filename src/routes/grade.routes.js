@@ -9,7 +9,7 @@ import {
 
 const router = Router();
 
-router.get("/grades/:id", authRequired, validateRol(["secretary", "viceprincipal"]), getGrades);
+router.get("/grades/:id", authRequired, validateRol(["secretary", "viceprincipal", "teacher", "principal"]), getGrades);
 router.post("/grades", authRequired, validateRol(["secretary", "viceprincipal"]), registerGrades);
 router.put("/grades", authRequired, validateRol(["secretary", "viceprincipal"]), updateGrades);
 

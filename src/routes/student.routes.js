@@ -30,7 +30,7 @@ router.put(
   updateStudent
 );
 router.get("/getstudent/:id", authRequired, validateRol("admin"), getStudent);
-router.get("/getstudents", authRequired, validateRol("admin"), getStudents);
+router.get("/getstudents", authRequired, validateRol(["admin", "viceprincipal"]), getStudents);
 router.delete(
   "/deletestudent/:id",
   authRequired,

@@ -17,6 +17,7 @@ import studentRoutes from "./routes/student.routes.js"
 import subjectRoutes from "./routes/subject.routes.js"
 import gradeRoutes from "./routes/grade.routes.js"
 import postRoutes from "./routes/post.routes.js"
+import eventRoutes from "./routes/event.routes.js"
 
 createRoles();
 createUsers();
@@ -42,6 +43,7 @@ app.use("/api/student", studentRoutes);
 app.use("/api/subject", subjectRoutes);
 app.use("/api/grade", gradeRoutes);
 app.use("/api/post", postRoutes);
-app.use("/api/", generalRoutes);
+app.use("/api/event", eventRoutes);
+app.use("/api", generalRoutes);
 
 export { app, server };

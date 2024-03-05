@@ -99,8 +99,8 @@ export const createUsers = async () => {
           "Pale",
           "Colorado",
           "Activo",
-          "vicepincipal1@gmail.com",
-          await bcrypt.hash("vicepincipal1", 10),
+          "viceprincipal1@gmail.com",
+          await bcrypt.hash("viceprincipal1", 10),
           roles.find((role) => role.name === "viceprincipal").id,
         ]
       ), /* Vicedirector */

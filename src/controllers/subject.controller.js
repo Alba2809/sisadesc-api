@@ -124,7 +124,6 @@ export const updateSubject = async (req, res) => {
 };
 
 export const updateStatusSubject = async (req, res) => {
-  const { name, code, students, teacher } = req.body;
   try {
     const result = await SubjectModel.updateStatus(req.params.id);
 

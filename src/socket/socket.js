@@ -43,6 +43,21 @@ io.on("connection", (socket) => {
     console.log("New post", data);
     io.emit("post", data);
   });
+
+  socket.on("newEvent", (data) => {
+    console.log("New event", data);
+    io.emit("newEvent", data);
+  });
+
+  socket.on("updateEvent", (data) => {
+    console.log("Update event", data);
+    io.emit("updateEvent", data);
+  });
+
+  socket.on("deleteEvent", (data) => {
+    console.log("Delete event", data);
+    io.emit("deleteEvent", data);
+  });
 });
 
 export { app, io, server };

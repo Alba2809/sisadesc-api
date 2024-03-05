@@ -18,33 +18,33 @@ const router = Router();
 router.post(
   "/registerteacher",
   authRequired,
-  validateRol(["admin", "secretary"]),
+  validateRol(["admin", "secretary", "viceprincipal"]),
   validateSchema(teacherSchema),
   registerTeacher
 );
 router.put(
   "/updateteacher/:id",
   authRequired,
-  validateRol(["admin", "secretary"]),
+  validateRol(["admin", "secretary", "viceprincipal"]),
   validateSchema(teacherSchema),
   updateTeacher
 );
 router.get(
   "/getteacher/:id",
   authRequired,
-  validateRol(["admin", "secretary"]),
+  validateRol(["admin", "secretary", "viceprincipal"]),
   getTeacher
 );
 router.get(
   "/getteachers",
   authRequired,
-  validateRol(["admin", "secretary"]),
+  validateRol(["admin", "secretary", "viceprincipal"]),
   getTeachers
 );
 router.delete(
   "/deleteteacher/:id",
   authRequired,
-  validateRol(["admin", "secretary"]),
+  validateRol(["admin", "secretary", "viceprincipal"]),
   deleteTeacher
 );
 

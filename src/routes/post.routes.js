@@ -16,7 +16,6 @@ const router = Router();
 router.get(
   "/posts",
   authRequired,
-  validateRol(["secretary", "viceprincipal"]),
   getPosts
 );
 router.get(
