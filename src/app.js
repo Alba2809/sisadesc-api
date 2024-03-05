@@ -1,8 +1,3 @@
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
-import { validateRol } from "./middlewares/rol.middleware.js";
-import { validateDocument } from "./middlewares/document.middleware.js";
-import { authRequired } from "./middlewares/validateToken.js";
 import { createRoles, createUsers } from "./libs/initialSetup.js";
 import { FRONTEND_URL } from "./config.js";
 import { app, server } from "./socket/socket.js";
@@ -11,18 +6,20 @@ import morgan from "morgan";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes.js";
-import adminRoutes from "./routes/admin.routes.js";
-import teacherRoutes from "./routes/teacher.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
-import secretaryRoutes from "./routes/secretary.routes.js";
 import generalRoutes from "./routes/general.routes.js";
+import addressRoutes from "./routes/address.routes.js"
+import parentRoutes from "./routes/parent.routes.js"
+import roleRoutes from "./routes/role.routes.js"
+import teacherRoutes from "./routes/teacher.routes.js"
+import userRoutes from "./routes/user.routes.js"
+import studentRoutes from "./routes/student.routes.js"
+import subjectRoutes from "./routes/subject.routes.js"
+import gradeRoutes from "./routes/grade.routes.js"
+import postRoutes from "./routes/post.routes.js"
 
 createRoles();
 createUsers();
-
-const __filename = fileURLToPath(import.meta.url);
-
-const __dirname = dirname(__filename);
 
 app.use(
   cors({
@@ -34,20 +31,17 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
 
-/* app.use("/public/images", express.static(join(__dirname, "public/images")));
-app.use(
-  "/public/documentos",
-  authRequired,
-  validateRol(["employee.dw", "employee.op", "citizen"]),
-  validateDocument(),
-  express.static(join(__dirname, "public/documents"))
-);
- */
 app.use("/api", authRoutes);
 app.use("/api/chat", chatRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/api/address", addressRoutes);
+app.use("/api/parent", parentRoutes);
+app.use("/api/role", roleRoutes);
 app.use("/api/teacher", teacherRoutes);
-app.use("/api/secretary", secretaryRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/student", studentRoutes);
+app.use("/api/subject", subjectRoutes);
+app.use("/api/grade", gradeRoutes);
+app.use("/api/post", postRoutes);
 app.use("/api/", generalRoutes);
 
 export { app, server };

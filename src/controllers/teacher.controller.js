@@ -1,54 +1,84 @@
-import { GradeModel } from "../models/grade.model.js";
-import { SubjectModel } from "../models/subject.model.js";
+import { AddressModel } from "../models/address.model.js";
 import { TeacherModel } from "../models/teacher.model.js";
-import { UserModel } from "../models/user.model.js";
 
-export const getSubjects = async (req, res) => {
+export const registerTeacher = async (req, res) => {
+  const { firstname, lastnamepaternal, lastnamematernal, addressid } = req.body;
+
   try {
-    const user = await UserModel.getById(req.user.id);
-    const teacher = await TeacherModel.getByCurp(user.curp);
-    const subjects = await SubjectModel.getSubjectsOfTeacher(teacher.id);
+    const addressFound = await AddressModel.getById(+addressid);
 
-    res.json(subjects);
-  } catch (error) {
-    res.status(500).json(["Hubo un error al obtener las materias."]);
-  }
-};
+    if (!addressFound)
+      return res.status(404).json(["Dirección no encontrada."]);
 
-export const getSubjectStudents = async (req, res) => {
-  try {
-    const students = await SubjectModel.getSubjectStudents(req.params.id);
+    const row = await TeacherModel.create(req.body);
 
-    return res.json(students);
-  } catch (error) {
-    res.status(500).json(["Hubo un error al obtener los estudiantes."]);
-  }
-};
-
-export const getGrades = async (req, res) => {
-  try {
-    const students = await SubjectModel.getSubjectStudents(req.params.id);
-
-    if(!students.length) return res.json([]);
-    
-    const grades = await GradeModel.getGradesOfStudents(
-      students.map((student) => student.student_id),
-      req.params.id
-    );
-
-    const studentsWithGrades = students.map((student) => {
-      const grade = grades.filter(
-        (value) => value.student_id === student.student_id
-      );
-      return {
-        ...student,
-        grades: grade,
-      };
+    res.json({
+      firstname,
+      lastnamepaternal,
+      lastnamematernal,
+      teacherid: "MTR" + row.insertId,
     });
-    return res.json(studentsWithGrades);
   } catch (error) {
-    console.log(error)
-    res.status(500).json(["Hubo un error al obtener las calificaciones."]);
+    res.status(500).json(["Hubo un error al registrar el docente."]);
   }
-}
+};
 
+export const updateTeacher = async (req, res) => {
+  const { firstname, curp, addressid } = req.body;
+
+  try {
+    const addressFound = await AddressModel.getById(+addressid);
+
+    if (!addressFound)
+      return res.status(404).json(["Dirección no encontrada."]);
+
+    const result = await TeacherModel.update(req.params.id, req.body);
+
+    if (result.affectedRows === 0)
+      return res
+        .status(404)
+        .json(["Hubo un problema al actualizar el docente."]);
+
+    res.json({
+      firstname: firstname,
+      curp: curp,
+    });
+  } catch (error) {
+    res.status(500).json(["Hubo un error al actualizar el docente."]);
+  }
+};
+
+export const getTeacher = async (req, res) => {
+  try {
+    const teacherFound = await TeacherModel.getById(req.params.id);
+
+    if (!teacherFound) return res.status(404).json(["Docente no encontrado."]);
+
+    res.json(teacherFound);
+  } catch (error) {
+    res.status(500).json(["Hubo un error al obtener el docente."]);
+  }
+};
+
+export const getTeachers = async (req, res) => {
+  try {
+    const teachers = await TeacherModel.getAll();
+
+    res.json(teachers);
+  } catch (error) {
+    res.status(500).json(["Hubo un error al obtener los docentes."]);
+  }
+};
+
+export const deleteTeacher = async (req, res) => {
+  try {
+    const result = await TeacherModel.delete(req.params.id);
+
+    if (result.affectedRows <= 0)
+      return res.status(404).json(["Docente no encontrado."]);
+
+    res.json(result.affectedRows);
+  } catch (error) {
+    res.status(500).json(["Hubo un error al eliminar el docente."]);
+  }
+};
