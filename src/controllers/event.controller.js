@@ -47,9 +47,9 @@ export const registerEvent = async (req, res) => {
         /* io used to emit to all users connected except the user who create the new Event */
         io.except(userSocketId).emit("newEvent", newEvent);
       }
+      return res.status(200).json(newEvent);
     }
 
-    res.status(200).json(event);
   } catch (error) {
     console.log(error);
     res.status(500).json(["Hubo un error al registrar el evento."]);
