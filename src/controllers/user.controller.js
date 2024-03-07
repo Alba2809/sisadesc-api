@@ -7,7 +7,6 @@ export const registerUser = async (req, res) => {
   const { firstname, role, email } = req.body;
 
   try {
-    console.log(role);
     const roleFound = await RoleModel.getById(role);
 
     if (!roleFound) return res.status(404).json(["Rol no encontrado."]);

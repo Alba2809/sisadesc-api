@@ -33,7 +33,7 @@ export const getUsersToChat = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, fileData, fileName } = req.body;
     const sender_id = req.user.id;
     const receiver_id = req.params.id;
 
@@ -51,25 +51,26 @@ export const sendMessage = async (req, res) => {
       conversation.id,
       sender_id,
       receiver_id,
-      message
+      message,
+      fileData,
+      fileName
     );
 
     const sender = await UserModel.getById(sender_id);
 
-    /* Socket IO functionality */
     const receicerSocketId = getReceiverSocketId(receiver_id);
     if (receicerSocketId) {
-      /* io.to is used to send a message to a specific user */
       io.to(receicerSocketId).emit("message", {
         newMessage: messageCreated,
         receiver: receiver_id,
-        sender
+        sender,
       });
     }
 
     return res.json(messageCreated);
   } catch (error) {
     res.status(500).json(["Hubo un error al enviar el mensaje."]);
+    console.log(error);
   }
 };
 
@@ -91,5 +92,18 @@ export const getMessages = async (req, res) => {
     return res.json(messages);
   } catch (error) {
     res.status(500).json(["Hubo un error al obtener los mensajes."]);
+  }
+};
+
+export const getFileOfMessage = async (req, res) => {
+  try {
+    const messageId = req.params.id;
+    const message = await MessageModel.getFile(messageId);
+    return res.json({ 
+      fileData: message.fileData,
+      fileName: message.fileName
+    });
+  } catch (error) {
+    res.status(500).json(["Hubo un error al obtener el archivo."]);
   }
 };
