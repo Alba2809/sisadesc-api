@@ -12,7 +12,7 @@ export const getEvents = async (req, res) => {
 
 export const getEventById = async (req, res) => {
   try {
-    const event = await EventsModel.getEventById(req.params.id);
+    const event = await EventsModel.getEventsById(req.params.id);
     if (!event) return res.status(404).json(["Evento no encontrado."]);
     res.status(200).json(event);
   } catch (error) {
@@ -32,24 +32,15 @@ export const getEventByDate = async (req, res) => {
 
 export const registerEvent = async (req, res) => {
   try {
-    const sameDate = await EventsModel.getEventByDate(req.body.date);
+    const result = await EventsModel.create(req.body);
 
-    if (sameDate)
-      return res.status(404).json(["Ya existe un evento con la misma fecha."]);
+    const newEvent = await EventsModel.getEventById(result.insertId);
 
-    const event = await EventsModel.create(req.body);
-
-    if (event.affectedRows === 1) {
-      const newEvent = await EventsModel.getEventById(event.insertId);
-
-      const userSocketId = getReceiverSocketId(req.user.id);
-      if (userSocketId) {
-        /* io used to emit to all users connected except the user who create the new Event */
-        io.except(userSocketId).emit("newEvent", newEvent);
-      }
-      return res.status(200).json(newEvent);
+    const userSocketId = getReceiverSocketId(req.user.id);
+    if (userSocketId) {
+      io.except(userSocketId).emit("newEvent", newEvent);
     }
-
+    return res.status(200).json(newEvent);
   } catch (error) {
     console.log(error);
     res.status(500).json(["Hubo un error al registrar el evento."]);
@@ -59,21 +50,19 @@ export const registerEvent = async (req, res) => {
 export const updateEvent = async (req, res) => {
   try {
     const event = await EventsModel.update(req.params.id, req.body);
-
+    
     if (event.affectedRows <= 0)
-      return res.status(404).json(["Evento no encontrado."]);
+    return res.status(404).json(["Evento no encontrado."]);
 
-    if (event.affectedRows === 1) {
-      const eventUpdated = await EventsModel.getEventById(req.params.id);
+    const updatedEvent = await EventsModel.getEventById(req.params.id);
 
-      const userSocketId = getReceiverSocketId(req.user.id);
-      if (userSocketId) {
-        /* io used to emit to all users connected except the user who create the new Event */
-        io.except(userSocketId).emit("updateEvent", eventUpdated);
-      }
+    const userSocketId = getReceiverSocketId(req.user.id);
+
+    if (userSocketId) {
+      io.except(userSocketId).emit("updateEvent", updatedEvent);
     }
 
-    res.status(200).json(event);
+    res.status(200).json(updatedEvent);
   } catch (error) {
     console.log(error);
     res.status(500).json(["Hubo un error al actualizar el evento."]);

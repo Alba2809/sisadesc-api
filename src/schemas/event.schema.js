@@ -8,4 +8,11 @@ export const eventSchema = z.object({
   description: z.string({
     required_error: "La descripción es requerida.",
   }),
+  start_time: z.string({
+    required_error: "La hora de inicio es requerida.",
+  })
+  ,
+  end_time: z.string({
+    required_error: "La hora de fin es requerida.",
+  })
 });
