@@ -33,7 +33,7 @@ export const createUsers = async () => {
 
     await Promise.all([
       pool.query(
-        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role, curp) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [
           "Juan",
           "Perez",
@@ -42,10 +42,11 @@ export const createUsers = async () => {
           "administrador@gmail.com",
           await bcrypt.hash("administrador", 10),
           roles.find((role) => role.name === "admin").id,
+          "JPGA980101HMCRRR06",
         ]
       ), /* Administrador */
       pool.query(
-        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role, curp) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [
           "Pablo",
           "Sanchez",
@@ -54,10 +55,11 @@ export const createUsers = async () => {
           "teacher1@gmail.com",
           await bcrypt.hash("teacher1", 10),
           roles.find((role) => role.name === "teacher").id,
+          "PSPA980101HMCRRR06",
         ]
       ), /* Maestro */
       pool.query(
-        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role, curp) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [
           "Juan",
           "Gutierrez",
@@ -66,10 +68,11 @@ export const createUsers = async () => {
           "counselor1@gmail.com",
           await bcrypt.hash("counselor1", 10),
           roles.find((role) => role.name === "counselor").id,
+          "JGPA980101HMCRRR07",
         ]
       ), /* Tutor */
       pool.query(
-        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role, curp) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [
           "Marta",
           "Sanchez",
@@ -78,10 +81,11 @@ export const createUsers = async () => {
           "secretary1@gmail.com",
           await bcrypt.hash("secretary1", 10),
           roles.find((role) => role.name === "secretary").id,
+          "MSPA980101HMCRRR08",
         ]
       ), /* Secretaria */
       pool.query(
-        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role, curp) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [
           "Axel",
           "Herrrera",
@@ -90,10 +94,11 @@ export const createUsers = async () => {
           "principal1@gmail.com",
           await bcrypt.hash("principal1", 10),
           roles.find((role) => role.name === "principal").id,
+          "AHCA980101HMCRRR09",
         ]
       ), /* Director */
       pool.query(
-        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role, curp) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [
           "Jhonatan",
           "Pale",
@@ -102,10 +107,11 @@ export const createUsers = async () => {
           "viceprincipal1@gmail.com",
           await bcrypt.hash("viceprincipal1", 10),
           roles.find((role) => role.name === "viceprincipal").id,
+          "JPCA980101HMCRRR10",
         ]
       ), /* Vicedirector */
       pool.query(
-        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role, curp) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [
           "Luis",
           "Migule",
@@ -114,6 +120,7 @@ export const createUsers = async () => {
           "coordinador1@gmail.com",
           await bcrypt.hash("coordinador1", 10),
           roles.find((role) => role.name === "academiccoor").id,
+          "LMCA980101HMCRRR11",
         ]
       ), /* Coordinador académico */
     ]);
