@@ -190,6 +190,9 @@ export const getSubjectsOfTeacher = async (req, res) => {
   try {
     const user = await UserModel.getById(req.user.id);
     const teacher = await TeacherModel.getByCurp(user.curp);
+
+    if (!teacher) return res.status(404).json(["No se encontró el docente."]);
+
     const subjects = await SubjectModel.getSubjectsOfTeacher(teacher.id);
 
     res.json(subjects);
