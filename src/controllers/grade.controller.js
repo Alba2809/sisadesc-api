@@ -4,6 +4,7 @@ import { SubjectModel } from "../models/subject.model.js";
 export const registerGrades = async (req, res) => {
   const { students, evaluation_number } = req.body;
   try {
+    console.log(students)
     const subjectFound = await SubjectModel.getSubjectOfStudent(
       students[0]?.sub_stud_id
     );
@@ -132,6 +133,7 @@ export const getGrades = async (req, res) => {
         grades: grade,
       };
     });
+    
     return res.json(studentsWithGrades);
   } catch (error) {
     console.log(error);

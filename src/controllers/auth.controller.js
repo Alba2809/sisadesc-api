@@ -21,6 +21,7 @@ export const login = async (req, res) => {
 
     const token = await createAccessToken({ id: userFound.id });
 
+    //delete this and store the token in req.token
     res.cookie("token", token, {
       sameSite: "None",
       secure: true,

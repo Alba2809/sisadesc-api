@@ -35,7 +35,7 @@ router.put(
   validateSchema(updateUserSchema),
   updateUser
 );
-router.get("/getuser/:id", authRequired, validateRol("admin"), getUser);
+router.get("/getuser/:id", authRequired, validateRol(["admin", "viceprincipal"]), getUser);
 router.get("/getusers", authRequired, validateRol("admin"), getUsers);
 router.delete(
   "/deleteuser/:id",
