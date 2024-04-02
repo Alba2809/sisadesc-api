@@ -226,4 +226,27 @@ export class ParentModel {
 
     return result[0];
   }
+
+  static async getUsersToChat(curp){
+    const [users] = await pool.query(
+      "SELECT DISTINCT * FROM users WHERE id IN (SELECT DISTINCT subjects.counselor_id FROM subject_students LEFT JOIN subjects ON subject_students.subject_id = subjects.id WHERE student_id IN (SELECT id FROM students WHERE tutor_curp = ?) AND subjects.`status` = 'Activo' AND subjects.counselor_id IS NOT NULL) AND status = 'Activo'",
+      [curp]
+    );
+
+    const usersMapped = users.map((user) => {
+      return {
+        id: user.id,
+        firstname: user.firstname,
+        lastnamepaternal: user.lastnamepaternal,
+        lastnamematernal: user.lastnamematernal,
+        curp: user.curp,
+        rfc: user.rfc,
+        phonenumber: user.phonenumber,
+        birthdate: user.birthdate,
+        imageperfile: user.imageperfile,
+      };
+    });
+
+    return usersMapped;
+  }
 }

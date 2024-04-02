@@ -70,7 +70,7 @@ export const createUsers = async () => {
           roles.find((role) => role.name === "counselor").id,
           "JGPA980101HMCRRR07",
         ]
-      ), /* Tutor */
+      ), /* Asesor */
       pool.query(
         "INSERT INTO users (firstname, lastnamepaternal, lastnamematernal, status, email, password, role, curp) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [

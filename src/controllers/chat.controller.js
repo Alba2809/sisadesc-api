@@ -1,7 +1,6 @@
 import { ConversationModel } from "../models/conversation.model.js";
 import { MessageModel } from "../models/message.model.js";
-import { SubjectModel } from "../models/subject.model.js";
-import { TeacherModel } from "../models/teacher.model.js";
+import { ParentModel } from "../models/parent.model.js";
 import { UserModel } from "../models/user.model.js";
 import { getReceiverSocketId, io } from "../socket/socket.js";
 
@@ -11,20 +10,13 @@ export const getUsersToChat = async (req, res) => {
 
     const user = await UserModel.getById(sender_id);
 
-    let listIds = [];
+    let usersToChat = [];
+    if (user.role.name === "counselor") {
+      usersToChat = await UserModel.getCounselorConversations(sender_id);
+    } else if (user.role.name === "parent") {
+      usersToChat = await ParentModel.getUsersToChat(user.curp);
+    }
 
-    /* if (user.role.name === "teacher") {
-      const teacher = await TeacherModel.getByCurp(user.curp);
-      const subjects = await SubjectModel.getSubjectsOfTeacher(teacher.id);
-
-      listIds = await TeacherModel.getUsersToChat(
-        subjects.map((subject) => subject.id),
-        sender_id
-      );
-    } */
-    /* const usersToChat = await UserModel.getByIds(listIds) */
-    const usersToChat = await UserModel.getAllTest(sender_id);
-    /* console.log(user.role.name, usersToChat) */
     return res.json(usersToChat);
   } catch (error) {
     res.status(500).json(["Hubo un error al obtener los usuarios."]);
@@ -99,9 +91,9 @@ export const getFileOfMessage = async (req, res) => {
   try {
     const messageId = req.params.id;
     const message = await MessageModel.getFile(messageId);
-    return res.json({ 
+    return res.json({
       fileData: message.fileData,
-      fileName: message.fileName
+      fileName: message.fileName,
     });
   } catch (error) {
     res.status(500).json(["Hubo un error al obtener el archivo."]);

@@ -268,7 +268,7 @@ export class UserModel {
     return rows;
   }
 
-  static async update(id, input, uploadedImage) {
+  static async update(id, input) {
     const {
       firstname,
       lastnamepaternal,
@@ -282,6 +282,7 @@ export class UserModel {
       status,
       email,
       role,
+      imageperfile
     } = input;
 
     const [result] = await pool.query(
@@ -297,7 +298,7 @@ export class UserModel {
         phonenumber,
         birthdate,
         status,
-        uploadedImage,
+        imageperfile ?? null,
         email,
         +role,
         id,
@@ -364,5 +365,28 @@ export class UserModel {
     });
 
     return usersWithDetails[0];
+  }
+
+  static async getCounselorConversations(id){
+    const [users] = await pool.query(
+      "SELECT DISTINCT * FROM users WHERE curp IN (SELECT DISTINCT tutor_curp FROM students WHERE id IN (SELECT DISTINCT student_id FROM subject_students WHERE subject_id IN (SELECT id FROM subjects WHERE counselor_id = ?))) AND status = 'Activo'",
+      [id]
+    );
+
+    const usersMapped = users.map((user) => {
+      return {
+        id: user.id,
+        firstname: user.firstname,
+        lastnamepaternal: user.lastnamepaternal,
+        lastnamematernal: user.lastnamematernal,
+        curp: user.curp,
+        rfc: user.rfc,
+        phonenumber: user.phonenumber,
+        birthdate: user.birthdate,
+        imageperfile: user.imageperfile,
+      };
+    });
+
+    return usersMapped;
   }
 }

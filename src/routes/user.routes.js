@@ -31,7 +31,7 @@ router.put(
   "/updateuser/:id",
   authRequired,
   validateRol("admin"),
-  upload.single("imageperfile"),
+  /* upload.single("imageperfile"), */
   validateSchema(updateUserSchema),
   updateUser
 );

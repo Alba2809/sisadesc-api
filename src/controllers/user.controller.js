@@ -57,7 +57,7 @@ export const updateUser = async (req, res) => {
       return res.status(404).json(["Dirección no encontrada."]);
 
     /*  */
-    const userFound = await UserModel.getById(req.params.id);
+   /*  const userFound = await UserModel.getById(req.params.id);
     if (req.file) {
       if (userFound.imageperfile && userFound.imageperfile !== "") {
         deleteImagePerfile(userFound.imageperfile);
@@ -72,12 +72,11 @@ export const updateUser = async (req, res) => {
           ]);
     } else {
       uploadedImage = userFound.imageperfile;
-    }
+    } */
 
     const result = await UserModel.update(
       req.params.id,
       req.body,
-      uploadedImage
     );
 
     if (result.affectedRows === 0)
