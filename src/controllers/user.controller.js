@@ -1,4 +1,3 @@
-import { deleteImagePerfile, uploadImagePerfile } from "../config.js";
 import { AddressModel } from "../models/address.model.js";
 import { RoleModel } from "../models/role.model.js";
 import { UserModel } from "../models/user.model.js";
@@ -33,8 +32,6 @@ export const registerUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   const { firstname, addressid, email, role } = req.body;
-  const newImage = req.file;
-  let uploadedImage = null;
 
   try {
     /*  */
@@ -56,24 +53,6 @@ export const updateUser = async (req, res) => {
     if (!addressFound)
       return res.status(404).json(["Dirección no encontrada."]);
 
-    /*  */
-   /*  const userFound = await UserModel.getById(req.params.id);
-    if (req.file) {
-      if (userFound.imageperfile && userFound.imageperfile !== "") {
-        deleteImagePerfile(userFound.imageperfile);
-      }
-
-      uploadedImage = await uploadImagePerfile(newImage);
-      if (!uploadedImage)
-        return res
-          .status(404)
-          .json([
-            "Hubo un problema al actualizar la imagen de perfil. Intente de nuevo.",
-          ]);
-    } else {
-      uploadedImage = userFound.imageperfile;
-    } */
-
     const result = await UserModel.update(
       req.params.id,
       req.body,
@@ -90,7 +69,6 @@ export const updateUser = async (req, res) => {
       email,
     });
   } catch (error) {
-    if (uploadedImage) deleteImagePerfile(uploadedImage);
     res.status(500).json(["Hubo un error al actualizar el usuario."]);
   }
 };
