@@ -7,6 +7,18 @@ export class MessageModel {
       [conversation_id]
     );
 
+    /* const [totalMessages] = await pool.query(
+      "SELECT COUNT(*) AS total FROM messages WHERE conversation_id = ?",
+      [conversation_id]
+    );
+
+    let messagesArray = {
+      messages: messages,
+      missingMessages: totalMessages[0].total - messages.length
+    };
+
+    messages.reverse(); */
+
     return messages;
   }
 
