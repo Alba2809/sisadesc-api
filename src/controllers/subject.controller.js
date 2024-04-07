@@ -4,7 +4,7 @@ import { TeacherModel } from "../models/teacher.model.js";
 import { UserModel } from "../models/user.model.js";
 
 export const registerSubject = async (req, res) => {
-  const { name, code, teacher, counselor } = req.body;
+  const { name, code, teacher } = req.body;
 
   try {
     /* Código en uso */
@@ -24,19 +24,6 @@ export const registerSubject = async (req, res) => {
       }
     }
 
-    /* Existe el asesor */
-    if (counselor) {
-      const foundCounselor = await UserModel.getByCurp(counselor);
-
-      if (!foundCounselor) {
-        return res.status(404).json(["No se encontró al asesor."]);
-      }
-
-      if(foundCounselor.role.name !== "counselor") {
-        return res.status(404).json(["La persona que intenta asignar como asesor no es un asesor."]);
-      }
-    }
-
     const rowSubject = await SubjectModel.create(req.body);
 
     if (rowSubject.affectedRows !== 1) return;
@@ -51,7 +38,7 @@ export const registerSubject = async (req, res) => {
 };
 
 export const updateSubject = async (req, res) => {
-  const { name, code, students, teacher, counselor } = req.body;
+  const { name, code, students, teacher } = req.body;
   try {
     /* Código en uso */
     const sameCode = await SubjectModel.getByCodeUpdate(req.params.id, code);
@@ -67,19 +54,6 @@ export const updateSubject = async (req, res) => {
 
       if (!foundTeacher) {
         return res.status(404).json(["No se encontró al docente."]);
-      }
-    }
-
-    /* Existe el asesor */
-    if (counselor) {
-      const foundCounselor = await UserModel.getByCurp(counselor);
-
-      if (!foundCounselor) {
-        return res.status(404).json(["No se encontró al asesor."]);
-      }
-
-      if(foundCounselor.role.name !== "counselor") {
-        return res.status(404).json(["La persona que intenta asignar como asesor no es un asesor."]);
       }
     }
 

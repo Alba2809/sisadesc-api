@@ -229,8 +229,8 @@ export class ParentModel {
 
   static async getUsersToChat(curp){
     const [users] = await pool.query(
-      "SELECT DISTINCT * FROM users WHERE id IN (SELECT DISTINCT subjects.counselor_id FROM subject_students LEFT JOIN subjects ON subject_students.subject_id = subjects.id WHERE student_id IN (SELECT id FROM students WHERE tutor_curp = ?) AND subjects.`status` = 'Activo' AND subjects.counselor_id IS NOT NULL) AND status = 'Activo'",
-      [curp]
+      "SELECT DISTINCT * FROM users WHERE id IN (SELECT DISTINCT user_id FROM counselors WHERE grade IN(SELECT grade FROM students WHERE tutor_curp = ?) AND counselors.group IN(SELECT students.group FROM students WHERE tutor_curp = ?)) AND status = 'Activo'",
+      [curp, curp]
     );
 
     const usersMapped = users.map((user) => {

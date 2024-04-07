@@ -1,11 +1,10 @@
 import { pool } from "../db.js";
 import { TeacherModel } from "./teacher.model.js";
-import { UserModel } from "./user.model.js";
 
 export class SubjectModel {
   static async getAll() {
     const [subjects] = await pool.query(
-      "SELECT subjects.id, subjects.name, subjects.code, subjects.group, subjects.grade, subjects.status, subjects.teacher_id, teachers.curp AS teacher_curp, subjects.counselor_id, users.curp AS counselor_curp, DATE_FORMAT(subjects.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS createdAt, DATE_FORMAT(subjects.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS updatedAt, COUNT(DISTINCT subject_students.id) AS students_total FROM subjects LEFT JOIN subject_students ON subjects.id = subject_students.subject_id LEFT JOIN teachers ON subjects.teacher_id = teachers.id LEFT JOIN users ON subjects.counselor_id = users.id GROUP BY subjects.id"
+      "SELECT subjects.id, subjects.name, subjects.code, subjects.group, subjects.grade, subjects.status, subjects.teacher_id, teachers.curp AS teacher_curp, DATE_FORMAT(subjects.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS createdAt, DATE_FORMAT(subjects.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS updatedAt, COUNT(DISTINCT subject_students.id) AS students_total FROM subjects LEFT JOIN subject_students ON subjects.id = subject_students.subject_id LEFT JOIN teachers ON subjects.teacher_id = teachers.id GROUP BY subjects.id"
     );
 
     return subjects;
@@ -21,7 +20,7 @@ export class SubjectModel {
 
   static async getById(id) {
     const [foundSubject] = await pool.query(
-      "SELECT subjects.id, subjects.name, subjects.code, subjects.group, subjects.teacher_id, teachers.curp AS teacher_curp, subjects.counselor_id, users.curp AS counselor_curp, DATE_FORMAT(subjects.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS createdAt, DATE_FORMAT(subjects.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS updatedAt FROM subjects LEFT JOIN teachers ON subjects.teacher_id = teachers.id LEFT JOIN users ON subjects.counselor_id = users.id WHERE subjects.id = ?",
+      "SELECT subjects.id, subjects.name, subjects.code, subjects.group, subjects.teacher_id, teachers.curp AS teacher_curp, DATE_FORMAT(subjects.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS createdAt, DATE_FORMAT(subjects.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS updatedAt FROM subjects LEFT JOIN teachers ON subjects.teacher_id = teachers.id WHERE subjects.id = ?",
       [id]
     );
 
@@ -39,8 +38,6 @@ export class SubjectModel {
         group: foundSubject[0].group,
         teacher_id: foundSubject[0].teacher_id,
         teacher_curp: foundSubject[0].teacher_curp,
-        counselor_id: foundSubject[0].counselor_id,
-        counselor_curp: foundSubject[0].counselor_curp,
         createdAt: foundSubject[0].createdAt,
         updatedAt: foundSubject[0].updatedAt,
         students
@@ -96,13 +93,11 @@ export class SubjectModel {
 
   static async create(input) {
     let teacher = []
-    let counselor = []
     if(input.teacher) teacher = await TeacherModel.getByCurp(input.teacher)
-    if(input.counselor) counselor = await UserModel.getByCurp(input.counselor)
 
     const [rows] = await pool.query(
-      "INSERT INTO subjects (name, code, subjects.group, subjects.grade, teacher_id, counselor_id) VALUES (?, ?, ?, ?, ?, ?)",
-      [input.name, input.code, input.group, +input.grade, teacher?.id ?? null, counselor?.id ?? null]
+      "INSERT INTO subjects (name, code, subjects.group, subjects.grade, teacher_id) VALUES (?, ?, ?, ?, ?)",
+      [input.name, input.code, input.group, +input.grade, teacher?.id ?? null]
     );
 
     return rows;
@@ -119,13 +114,11 @@ export class SubjectModel {
 
   static async update(id, input) {
     let teacher = []
-    let counselor = []
     if(input.teacher) teacher = await TeacherModel.getByCurp(input.teacher)
-    if(input.counselor) counselor = await UserModel.getByCurp(input.counselor)
 
     const [result] = await pool.query(
-      "UPDATE subjects SET name = ?, code = ?, subjects.group = ?, teacher_id = ?, counselor_id = ? WHERE id = ?",
-      [input.name, input.code, input.group, teacher?.id ?? null, counselor?.id ?? null, id]
+      "UPDATE subjects SET name = ?, code = ?, subjects.group = ?, teacher_id = ? WHERE id = ?",
+      [input.name, input.code, input.group, teacher?.id ?? null, id]
     );
 
     return result;

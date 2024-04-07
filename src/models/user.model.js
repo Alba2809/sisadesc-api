@@ -369,7 +369,7 @@ export class UserModel {
 
   static async getCounselorConversations(id){
     const [users] = await pool.query(
-      "SELECT DISTINCT * FROM users WHERE curp IN (SELECT DISTINCT tutor_curp FROM students WHERE id IN (SELECT DISTINCT student_id FROM subject_students WHERE subject_id IN (SELECT id FROM subjects WHERE counselor_id = ?))) AND status = 'Activo'",
+      "SELECT DISTINCT * FROM users WHERE curp IN (SELECT tutor_curp FROM students WHERE grade IN(SELECT grade FROM counselors WHERE user_id = 39) AND students.group IN(SELECT counselors.group FROM counselors WHERE user_id = 39) AND tutor_curp IS NOT NULL) AND status = 'Activo'",
       [id]
     );
 
