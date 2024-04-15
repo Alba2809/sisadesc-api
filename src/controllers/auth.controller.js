@@ -111,3 +111,18 @@ export const updatePassword = async (req, res) => {
     res.status(500).json(["Hubo un error al actualizar la contraseña."]);
   }
 }
+
+export const updateImage = async (req, res) => {
+  try {
+    const userFound = await UserModel.getById(req.user.id)
+
+    if (!userFound)
+      return res.status(400).json(["Usuario no encontrado."]);
+
+    const result = await UserModel.updateImage(req.user.id, req.body.imageperfile)
+
+    return res.json(result);
+  } catch (error) {
+    res.status(500).json(["Hubo un error al actualizar la imagen."]);
+  }
+}

@@ -5,6 +5,7 @@ import {
   verifyToken,
   getUser,
   updatePassword,
+  updateImage,
 } from "../controllers/auth.controller.js";
 import { authRequired } from "../middlewares/validateToken.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
@@ -22,5 +23,6 @@ router.post(
   validateSchema(updatePasswordSchema),
   updatePassword
 );
+router.post("/updateimage", authRequired, updateImage);
 
 export default router;

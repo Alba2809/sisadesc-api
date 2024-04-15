@@ -326,6 +326,20 @@ export class UserModel {
     return result;
   }
 
+  static async updateImage(id, imageperfile) {
+    const [result] = await pool.query(
+      "UPDATE users SET imageperfile = ? WHERE id = ?",
+      [
+        imageperfile,
+        id,
+      ]
+    );
+
+    const user = await this.getById(id);
+
+    return user;
+  }
+
   static async delete(id) {
     const [result] = await pool.query("DELETE FROM users WHERE id = ?", [id]);
 
