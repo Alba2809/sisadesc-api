@@ -14,6 +14,9 @@ export const login = async (req, res) => {
     if (!userFound)
       return res.status(400).json(["Usuario no encontrado"]);
 
+    if(userFound.status !== "Activo")
+      return res.status(400).json(["Ya no puedes iniciar sesión. Por favor contacta con el administrador si esto no es correcto."]);
+
     const isMatch = await bcrypt.compare(password, userFound.password);
 
     if (!isMatch)
@@ -21,7 +24,6 @@ export const login = async (req, res) => {
 
     const token = await createAccessToken({ id: userFound.id });
 
-    //delete this and store the token in req.token
     res.cookie("token", token, {
       sameSite: "None",
       secure: true,

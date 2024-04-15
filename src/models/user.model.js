@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 export class UserModel {
   static async getAll() {
     const [users] = await pool.query(
-      "SELECT users.*, DATE_FORMAT(users.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(users.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, roles.name AS role_name, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id LEFT JOIN addresses ON users.address_id = addresses.id"
+      "SELECT users.*, DATE_FORMAT(users.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(users.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, roles.name AS role_name, roles.name_spanish AS role_spanish, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id LEFT JOIN addresses ON users.address_id = addresses.id"
     );
 
     const usersWithDetails = users.map((user) => {
@@ -25,6 +25,7 @@ export class UserModel {
         role: {
           id: user.role,
           name: user.role_name,
+          name_spanish: user.role_spanish,
         },
         address: {
           postalcode: user.address_cp,
@@ -75,7 +76,7 @@ export class UserModel {
 
   static async getById(id) {
     const [userFound] = await pool.query(
-      "SELECT users.*, DATE_FORMAT(users.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(users.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, roles.name AS role_name, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id LEFT JOIN addresses ON users.address_id = addresses.id WHERE users.id = ?",
+      "SELECT users.*, DATE_FORMAT(users.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(users.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, roles.name AS role_name, roles.name_spanish AS role_spanish, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id LEFT JOIN addresses ON users.address_id = addresses.id WHERE users.id = ?",
       [id]
     );
 
@@ -100,6 +101,7 @@ export class UserModel {
         role: {
           id: user.role,
           name: user.role_name,
+          name_spanish: user.role_spanish,
         },
         address: {
           id: user.address_id,
@@ -154,7 +156,7 @@ export class UserModel {
 
   static async getByEmail(email) {
     const [userFound] = await pool.query(
-      "SELECT users.*, DATE_FORMAT(users.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(users.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, roles.name AS role_name, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id LEFT JOIN addresses ON users.address_id = addresses.id WHERE users.email = ?",
+      "SELECT users.*, DATE_FORMAT(users.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(users.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, roles.name AS role_name, roles.name_spanish AS role_spanish, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id LEFT JOIN addresses ON users.address_id = addresses.id WHERE users.email = ?",
       [email]
     );
 
@@ -177,6 +179,7 @@ export class UserModel {
         role: {
           id: user.role,
           name: user.role_name,
+          name_spanish: user.role_spanish,
         },
         address: {
           postalcode: user.address_cp,
@@ -196,7 +199,7 @@ export class UserModel {
 
   static async getByCurp(curp) {
     const [userFound] = await pool.query(
-      "SELECT users.*, DATE_FORMAT(users.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(users.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, roles.name AS role_name, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id LEFT JOIN addresses ON users.address_id = addresses.id WHERE users.curp = ?",
+      "SELECT users.*, DATE_FORMAT(users.createdAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedCreatedAt, DATE_FORMAT(users.updatedAt, '%Y-%m-%dT%H:%i:%s.000%z') AS formattedUpdatedAt, roles.name AS role_name, roles.name_spanish AS role_spanish, addresses.CP AS address_cp, addresses.asentamiento AS address_settlement, addresses.tipo_asentamiento AS address_type, addresses.municipio AS address_town, addresses.estado AS address_state, addresses.ciudad AS address_city from users JOIN roles ON users.role = roles.id LEFT JOIN addresses ON users.address_id = addresses.id WHERE users.curp = ?",
       [curp]
     );
 
@@ -219,6 +222,7 @@ export class UserModel {
         role: {
           id: user.role,
           name: user.role_name,
+          name_spanish: user.role_spanish,
         },
         address: {
           postalcode: user.address_cp,
