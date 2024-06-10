@@ -18,7 +18,7 @@ export const pool = createPool({
 export const connectDB = async () => {
   try {
     await pool.query("select 1 + 1 as result");
-    console.log("DB mysql is connected white the name: "+ DATABASE_MYSQL);
+    console.log("DB mysql is connected whith the name: "+ DATABASE_MYSQL);
   } catch (error) {
     console.log(error);
   }
