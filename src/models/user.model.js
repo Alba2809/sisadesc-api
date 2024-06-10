@@ -387,8 +387,8 @@ export class UserModel {
 
   static async getCounselorConversations(id){
     const [users] = await pool.query(
-      "SELECT DISTINCT * FROM users WHERE curp IN (SELECT tutor_curp FROM students WHERE grade IN(SELECT grade FROM counselors WHERE user_id = 39) AND students.group IN(SELECT counselors.group FROM counselors WHERE user_id = 39) AND tutor_curp IS NOT NULL) AND status = 'Activo'",
-      [id]
+      "SELECT DISTINCT * FROM users WHERE curp IN (SELECT tutor_curp FROM students WHERE grade IN(SELECT grade FROM counselors WHERE user_id = ?) AND students.group IN(SELECT counselors.group FROM counselors WHERE user_id = ?) AND tutor_curp IS NOT NULL) AND status = 'Activo'",
+      [id,id]
     );
 
     const usersMapped = users.map((user) => {
